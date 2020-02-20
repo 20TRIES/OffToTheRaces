@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Response\Time;
+namespace App\ApplicationSetting\Response;
 
-use App\Http\Response\Time\Exception\NegativeTimeException;
+use App\ApplicationSetting\Exception\NegativeTimeException;
 use Illuminate\Http\JsonResponse;
 
 class GetTimeResponse extends JsonResponse
@@ -14,7 +14,7 @@ class GetTimeResponse extends JsonResponse
 
     /**
      * @param int $time
-     * @throws NegativeTimeException
+     * @throws \App\ApplicationSetting\Time\Exception\\App\ApplicationSetting\Exception\NegativeTimeException
      */
     public function __construct(int $time)
     {

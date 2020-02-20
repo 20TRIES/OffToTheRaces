@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Command\Handler;
+namespace App\Lib\Command;
 
-use App\Command\Command;
+use App\Lib\Command\Command;
 
 interface HandlerInterface
 {
     /**
      * Handles a command.
      *
-     * @param Command $command
+     * @param \App\Lib\Command\Command $command
      * @return mixed
      */
     public function handle($command);

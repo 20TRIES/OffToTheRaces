@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Response\Time\Exception;
+namespace App\ApplicationSetting\Exception;
 
 use Exception;
 

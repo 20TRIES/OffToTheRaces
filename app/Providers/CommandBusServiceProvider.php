@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Command\Handler\IncrementApplicationTimeHandler;
-use App\Command\IncrementApplicationTimeCommand;
+use App\ApplicationSetting\Command\Handler\IncrementApplicationTimeHandler;
+use App\ApplicationSetting\Command\IncrementApplicationTimeCommand;
 use Illuminate\Support\ServiceProvider;
 use League\Tactician\CommandBus;
 use League\Tactician\Container\ContainerLocator;

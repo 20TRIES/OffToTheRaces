@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Model\ApplicationSetting\Repository;
+namespace App\ApplicationSetting;
 
-use App\Model\ApplicationSetting\ApplicationSettingModel;
-use App\Model\FindsOneModelByIdInterface;
-use App\Model\Repository;
+use App\ApplicationSetting\ApplicationSettingModel;
+use App\Lib\Repository\FindsOneModelByIdInterface;
+use App\Lib\Repository\Repository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
