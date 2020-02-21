@@ -3,6 +3,7 @@
 namespace Tests\Unit\Http\Response;
 
 use App\ApplicationSetting\Exception\NegativeTimeException;
+use App\ApplicationSetting\Http\Etag;
 use App\ApplicationSetting\Http\Response\GetTimeResponse;
 use Illuminate\Http\JsonResponse;
 use Tests\Unit\TestCase;
@@ -62,7 +63,7 @@ class GetTimeResponseTest extends TestCase
     public function construct__itSetsATimeEtagHeader($time)
     {
         $response = new GetTimeResponse($time);
-        $this->assertEquals($response->getEtag(), sprintf('"%s"', GetTimeResponse::ETAG_TIME));
+        $this->assertEquals($response->getEtag(), sprintf('"%s"', Etag::TIME));
     }
 
     /**

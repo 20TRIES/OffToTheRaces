@@ -3,15 +3,11 @@
 namespace App\ApplicationSetting\Http\Response;
 
 use App\ApplicationSetting\Exception\NegativeTimeException;
+use App\ApplicationSetting\Http\Etag;
 use Illuminate\Http\JsonResponse;
 
 class GetTimeResponse extends JsonResponse
 {
-    /**
-     * @var string
-     */
-    const ETAG_TIME = 'time';
-
     /**
      * @param int $time
      * @throws NegativeTimeException
@@ -22,6 +18,6 @@ class GetTimeResponse extends JsonResponse
             throw new NegativeTimeException(sprintf('Times cannot be negative but a time of "%s" was provided', $time));
         }
         parent::__construct(['time' => ['current' => $time]]);
-        $this->setEtag(static::ETAG_TIME);
+        $this->setEtag(Etag::TIME);
     }
 }
