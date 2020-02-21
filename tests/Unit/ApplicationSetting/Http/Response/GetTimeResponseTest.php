@@ -12,99 +12,111 @@ class GetTimeResponseTest extends TestCase
 {
     /**
      * @test
+     * @covers GetTimeResponse::__construct
+     * @testWith [1]
+     *           [0]
      */
-    public function construct__itAcceptsPositiveInteger()
+    public function construct__itAcceptsPositiveInteger($time)
     {
         $this->expectNotToPerformAssertions();
-        new \App\ApplicationSetting\Http\Response\GetTimeResponse(1);
+        new GetTimeResponse($time);
     }
 
     /**
      * @test
+     * @covers GetTimeResponse::__construct
+     * @testWith [1]
      */
-    public function construct__itReturnsInstanceOfJsonResponse()
+    public function construct__itReturnsInstanceOfJsonResponse($time)
     {
-        $this->assertInstanceOf(JsonResponse::class, new \App\ApplicationSetting\Http\Response\GetTimeResponse(1));
+        $this->assertInstanceOf(JsonResponse::class, new GetTimeResponse($time));
     }
 
     /**
      * @test
+     * @covers GetTimeResponse::__construct
+     * @testWith ["foo"]
      */
-    public function construct__itThrowsExceptionWhenNotProvidedInteger()
+    public function construct__itThrowsTypeErrorWhenNotProvidedInteger($time)
     {
         $this->expectException(TypeError::class);
-        new \App\ApplicationSetting\Http\Response\GetTimeResponse('foo');
+        new GetTimeResponse($time);
     }
 
     /**
      * @test
+     * @covers GetTimeResponse::__construct
+     * @testWith [-1]
      */
-    public function construct__itAcceptsAZeroTime()
-    {
-        $this->expectNotToPerformAssertions();
-        new GetTimeResponse(0);
-    }
-
-    /**
-     * @test
-     */
-    public function construct__itThrowsExceptionIfProvidedNegativeInteger()
+    public function construct__itThrowsExceptionWhenNotProvidedPositiveInteger($time)
     {
         $this->expectException(NegativeTimeException::class);
-        new GetTimeResponse(-1);
+        new GetTimeResponse($time);
     }
 
     /**
      * @test
+     * @covers GetTimeResponse::__construct
+     * @testWith [0]
      */
-    public function construct__itSetsATimeEtagHeader()
+    public function construct__itSetsATimeEtagHeader($time)
     {
-        $response = new \App\ApplicationSetting\Http\Response\GetTimeResponse(0);
+        $response = new GetTimeResponse($time);
         $this->assertEquals($response->getEtag(), sprintf('"%s"', GetTimeResponse::ETAG_TIME));
     }
 
     /**
      * @test
+     * @covers GetTimeResponse::__construct
+     * @testWith [0]
      */
-    public function construct__itSetsAnArrayOfData()
+    public function construct__itSetsAnArrayOfData($time)
     {
-        $response = new \App\ApplicationSetting\Http\Response\GetTimeResponse(0);
+        $response = new GetTimeResponse($time);
         $this->assertIsArray($response->getData(true));
     }
 
     /**
      * @test
+     * @covers GetTimeResponse::__construct
+     * @testWith [0]
      */
-    public function construct__itSetsAnArrayOfData_withATimeKey()
+    public function construct__itSetsAnArrayOfData_withATimeKey($time)
     {
-        $response = new \App\ApplicationSetting\Http\Response\GetTimeResponse(0);
+        $response = new GetTimeResponse($time);
         $this->assertArrayHasKey("time", $response->getData(true));
     }
 
     /**
      * @test
+     * @covers GetTimeResponse::__construct
+     * @testWith [0]
      */
-    public function construct__itSetsAnArrayOfData_withATimeArray()
+    public function construct__itSetsAnArrayOfData_withATimeArray($time)
     {
-        $response = new \App\ApplicationSetting\Http\Response\GetTimeResponse(0);
+        $response = new GetTimeResponse($time);
         $this->assertIsArray($response->getData(true)['time']);
     }
 
     /**
      * @test
+     * @covers GetTimeResponse::__construct
+     * @testWith [0]
      */
-    public function construct__itSetsAnArrayOfData_withATimeKey_containingACurrentKey()
+    public function construct__itSetsAnArrayOfData_withATimeKey_containingACurrentKey($time)
     {
-        $response = new \App\ApplicationSetting\Http\Response\GetTimeResponse(0);
+        $response = new GetTimeResponse($time);
         $this->assertArrayHasKey("current", $response->getData(true)['time']);
     }
 
     /**
      * @test
+     * @covers GetTimeResponse::__construct
+     * @testWith [7]
      */
-    public function construct__itSetsAnArrayOfData_withATimeKey_containingATime()
+    public function construct__itSetsAnArrayOfData_withATimeKey_containingATime($time)
     {
-        $response = new GetTimeResponse(7);
+        $response = new GetTimeResponse($time);
         $this->assertEquals(7, $response->getData(true)['time']['current']);
     }
 }
