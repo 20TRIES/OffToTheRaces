@@ -6,7 +6,7 @@ use App\ApplicationSetting\Exception\NegativeTimeException;
 use App\ApplicationSetting\Http\Etag;
 use Illuminate\Http\JsonResponse;
 
-class GetTimeResponse extends JsonResponse
+class GetApplicationTimeResponse extends JsonResponse
 {
     /**
      * @param int $time
@@ -19,5 +19,15 @@ class GetTimeResponse extends JsonResponse
         }
         parent::__construct(['time' => ['current' => $time]]);
         $this->setEtag(Etag::TIME);
+    }
+
+    /**
+     * Gets the application time set for a response.
+     *
+     * @return int
+     */
+    public function getApplicationTime(): int
+    {
+        return $this->getData(true)['time']['current'];
     }
 }

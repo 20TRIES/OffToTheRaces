@@ -7,7 +7,7 @@ use App\ApplicationSetting\Exception\ApplicationTimeDoesNotMatchObservedTimeExce
 use App\ApplicationSetting\Command\IncrementApplicationTimeCommand;
 use App\ApplicationSetting\Exception\NegativeTimeException;
 use App\Http\Controllers\Controller;
-use App\ApplicationSetting\Http\Response\GetTimeResponse;
+use App\ApplicationSetting\Http\Response\GetApplicationTimeResponse;
 use App\ApplicationSetting\ApplicationSettingRepository;
 use App\Lib\Enum\Http\Request\Header;
 use Illuminate\Http\JsonResponse;
@@ -29,12 +29,12 @@ class ApplicationTimeController extends Controller
      * Handles a request from a user to get the current application time.
      *
      * @param ApplicationSettingRepository $settingRepository
-     * @return GetTimeResponse
+     * @return GetApplicationTimeResponse
      * @throws NegativeTimeException
      */
-    public function index(ApplicationSettingRepository $settingRepository): GetTimeResponse
+    public function index(ApplicationSettingRepository $settingRepository): GetApplicationTimeResponse
     {
-        return new GetTimeResponse($settingRepository->findOneById(ApplicationSettingName::TIME)->getValue());
+        return new GetApplicationTimeResponse($settingRepository->findOneById(ApplicationSettingName::TIME)->getValue());
     }
 
     /**
@@ -52,7 +52,7 @@ class ApplicationTimeController extends Controller
             $command = new IncrementApplicationTimeCommand(static::SECONDS_TO_INCREMENT_BY, $observedTime);
             try {
                 $updatedTime = $commandBus->handle($command);
-                $response = new GetTimeResponse($updatedTime);
+                $response = new GetApplicationTimeResponse($updatedTime);
             } catch (ApplicationTimeDoesNotMatchObservedTimeException $exception) {}
         }
         return $response ?? new JsonResponse([], Response::HTTP_PRECONDITION_FAILED);

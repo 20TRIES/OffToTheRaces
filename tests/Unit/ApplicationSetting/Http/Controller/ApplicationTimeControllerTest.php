@@ -8,7 +8,7 @@ use App\ApplicationSetting\ApplicationSettingRepository;
 use App\ApplicationSetting\Command\IncrementApplicationTimeCommand;
 use App\ApplicationSetting\Exception\ApplicationTimeDoesNotMatchObservedTimeException;
 use App\ApplicationSetting\Http\Controller\ApplicationTimeController;
-use App\ApplicationSetting\Http\Response\GetTimeResponse;
+use App\ApplicationSetting\Http\Response\GetApplicationTimeResponse;
 use App\Lib\Enum\Http\Request\Header;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -43,7 +43,7 @@ class ApplicationTimeControllerTest extends TestCase
             ->willReturn($model);
         $controller = new ApplicationTimeController();
         $response =  $controller->index($repository);
-        $this->assertInstanceOf(GetTimeResponse::class, $response);
+        $this->assertInstanceOf(GetApplicationTimeResponse::class, $response);
     }
 
     /**
@@ -62,7 +62,7 @@ class ApplicationTimeControllerTest extends TestCase
             ->willReturn($model);
         $controller = new ApplicationTimeController();
         $response =  $controller->index($repository);
-        $this->assertEquals($time, $response->getData(true)['time']['current']);
+        $this->assertEquals($time, $response->getApplicationTime());
     }
 
     /**
@@ -202,7 +202,7 @@ class ApplicationTimeControllerTest extends TestCase
         $commandBus->method('handle')->willReturn(7);
         $request = $this->getMockBuilder(Request::class)->getMock();
         $response = $controller->update($commandBus, $request);
-        $this->assertInstanceOf(GetTimeResponse::class, $response);
+        $this->assertInstanceOf(GetApplicationTimeResponse::class, $response);
     }
 
     /**
@@ -216,7 +216,7 @@ class ApplicationTimeControllerTest extends TestCase
         $commandBus->method('handle')->willReturn($expectedUpdatedTime = 7);
         $request = $this->getMockBuilder(Request::class)->getMock();
         $response = $controller->update($commandBus, $request);
-        $this->assertSame($expectedUpdatedTime, $response->getData(true)['time']['current']);
+        $this->assertSame($expectedUpdatedTime, $response->getApplicationTime());
     }
 
     /**
