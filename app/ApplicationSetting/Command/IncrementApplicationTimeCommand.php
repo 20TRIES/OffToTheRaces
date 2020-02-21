@@ -3,12 +3,13 @@
 namespace App\ApplicationSetting\Command;
 
 use App\ApplicationSetting\Command\Handler\IncrementApplicationTimeHandler;
+use App\ApplicationSetting\Exception\NegativeTimeException;
 use App\Lib\Command\Command;
 
 /**
  * Increments the application time by a given number of seconds.
  *
- * @see \App\ApplicationSetting\Command\Handler\IncrementApplicationTimeHandler
+ * @see IncrementApplicationTimeHandler
  */
 class IncrementApplicationTimeCommand extends Command
 {
@@ -27,14 +28,16 @@ class IncrementApplicationTimeCommand extends Command
      *
      * @param int $secondsToIncrementBy
      * @param int $observedTime [$observedTime=null]
+     * @throws NegativeTimeException
      */
     public function __construct(int $secondsToIncrementBy, int $observedTime = null)
     {
-        // @todo test that exception is thrown if seconds is negative...
-        // @todo test that exception is thrown if seconds is not an int
-        // @todo test that exception is thrown if $observedTime is negative...
-        // @todo test that exception is thrown if $observedTime is not an int
-
+        if ($secondsToIncrementBy < 0) {
+            throw new NegativeTimeException();
+        }
+        if ($observedTime < 0) {
+            throw new NegativeTimeException();
+        }
         $this->secondsToIncrementBy = $secondsToIncrementBy;
         $this->observedTime = $observedTime;
     }
