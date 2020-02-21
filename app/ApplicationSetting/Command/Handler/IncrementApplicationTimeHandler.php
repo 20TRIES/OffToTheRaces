@@ -2,13 +2,13 @@
 
 namespace App\ApplicationSetting\Command\Handler;
 
-use App\Lib\Command\Command;
 use App\ApplicationSetting\Command\IncrementApplicationTimeCommand;
 use App\Exceptions\FailedToSaveModelException;
 use App\ApplicationSetting\ApplicationSettingModel;
 use App\ApplicationSetting\ApplicationSettingName;
 use App\ApplicationSetting\Exception\ApplicationTimeDoesNotMatchObservedTimeException;
 use App\ApplicationSetting\ApplicationSettingRepository;
+use App\Lib\Command\Command;
 use App\Lib\Command\HandlerInterface;
 
 /**
@@ -17,12 +17,12 @@ use App\Lib\Command\HandlerInterface;
 class IncrementApplicationTimeHandler implements HandlerInterface
 {
     /**
-     * @var \App\ApplicationSetting\ApplicationSettingRepository
+     * @var ApplicationSettingRepository
      */
     protected $settingRepository;
 
     /**
-     * @param \App\ApplicationSetting\ApplicationSettingRepository $settingRepository
+     * @param ApplicationSettingRepository $settingRepository
      */
     public function __construct(ApplicationSettingRepository $settingRepository)
     {
@@ -30,7 +30,7 @@ class IncrementApplicationTimeHandler implements HandlerInterface
     }
 
     /**
-     * @param \App\Lib\Command\Command|IncrementApplicationTimeCommand $command
+     * @param Command|IncrementApplicationTimeCommand $command
      * @return int
      * @throws ApplicationTimeDoesNotMatchObservedTimeException
      * @throws FailedToSaveModelException
