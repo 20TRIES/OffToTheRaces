@@ -3,13 +3,11 @@
 namespace App\ApplicationSetting\Controller;
 
 use App\ApplicationSetting\Exception\ApplicationTimeDoesNotMatchObservedTimeException;
-use App\ApplicationSetting\Request\IncrementApplicationTimeRequest;
 use App\ApplicationSetting\Command\IncrementApplicationTimeCommand;
 use App\Http\Controllers\Controller;
 use App\ApplicationSetting\Response\GetTimeResponse;
 use App\ApplicationSetting\ApplicationSettingRepository;
 use Illuminate\Http\JsonResponse;
-use App\ApplicationSetting\Exception\NegativeTimeException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use League\Tactician\CommandBus;
@@ -28,8 +26,7 @@ class ApplicationTimeController extends Controller
      * Handles a request from a user to get the current application time.
      *
      * @param ApplicationSettingRepository $settingRepository
-     * @return \App\ApplicationSetting\Response\GetTimeResponse
-     * @throws NegativeTimeException
+     * @return GetTimeResponse
      */
     public function index(ApplicationSettingRepository $settingRepository): JsonResponse
     {
@@ -42,7 +39,6 @@ class ApplicationTimeController extends Controller
      * @param CommandBus $commandBus
      * @param Request $request
      * @return JsonResponse
-     * @throws NegativeTimeException
      */
     public function update(CommandBus $commandBus, Request $request): JsonResponse
     {
