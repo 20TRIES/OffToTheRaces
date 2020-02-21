@@ -6,10 +6,10 @@ use App\ApplicationSetting\Exception\NegativeTimeException;
 use App\ApplicationSetting\Http\Etag;
 use App\ApplicationSetting\Http\Response\GetApplicationTimeResponse;
 use Illuminate\Http\JsonResponse;
-use Tests\Unit\TestCase;
+use Tests\Unit\UnitTestCase;
 use TypeError;
 
-class GetTimeResponseTest extends TestCase
+class GetTimeResponseUnitTest extends UnitTestCase
 {
     /**
      * @test

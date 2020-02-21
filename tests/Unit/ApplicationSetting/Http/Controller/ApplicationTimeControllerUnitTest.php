@@ -14,9 +14,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use League\Tactician\CommandBus;
-use Tests\Unit\TestCase;
+use Tests\Unit\UnitTestCase;
 
-class ApplicationTimeControllerTest extends TestCase
+class ApplicationTimeControllerUnitTest extends UnitTestCase
 {
     /**
      * @test

@@ -4,9 +4,9 @@ namespace Tests\Unit\ApplicationSetting\Command;
 
 use App\ApplicationSetting\Command\IncrementApplicationTimeCommand;
 use App\ApplicationSetting\Exception\NegativeTimeException;
-use Tests\Unit\TestCase;
+use Tests\Unit\UnitTestCase;
 
-class IncrementApplicationTimeCommandTest extends TestCase
+class IncrementApplicationTimeCommandUnitTest extends UnitTestCase
 {
     /**
      * @test
