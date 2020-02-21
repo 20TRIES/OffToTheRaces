@@ -3,7 +3,7 @@
 namespace Tests\Unit\Http\Response;
 
 use App\ApplicationSetting\Exception\NegativeTimeException;
-use App\ApplicationSetting\Response\GetTimeResponse;
+use App\ApplicationSetting\Http\Response\GetTimeResponse;
 use Illuminate\Http\JsonResponse;
 use Tests\Unit\TestCase;
 use TypeError;
@@ -16,7 +16,7 @@ class GetTimeResponseTest extends TestCase
     public function construct__itAcceptsPositiveInteger()
     {
         $this->expectNotToPerformAssertions();
-        new \App\ApplicationSetting\Response\GetTimeResponse(1);
+        new \App\ApplicationSetting\Http\Response\GetTimeResponse(1);
     }
 
     /**
@@ -24,7 +24,7 @@ class GetTimeResponseTest extends TestCase
      */
     public function construct__itReturnsInstanceOfJsonResponse()
     {
-        $this->assertInstanceOf(JsonResponse::class, new \App\ApplicationSetting\Response\GetTimeResponse(1));
+        $this->assertInstanceOf(JsonResponse::class, new \App\ApplicationSetting\Http\Response\GetTimeResponse(1));
     }
 
     /**
@@ -33,7 +33,7 @@ class GetTimeResponseTest extends TestCase
     public function construct__itThrowsExceptionWhenNotProvidedInteger()
     {
         $this->expectException(TypeError::class);
-        new \App\ApplicationSetting\Response\GetTimeResponse('foo');
+        new \App\ApplicationSetting\Http\Response\GetTimeResponse('foo');
     }
 
     /**
@@ -59,7 +59,7 @@ class GetTimeResponseTest extends TestCase
      */
     public function construct__itSetsATimeEtagHeader()
     {
-        $response = new \App\ApplicationSetting\Response\GetTimeResponse(0);
+        $response = new \App\ApplicationSetting\Http\Response\GetTimeResponse(0);
         $this->assertEquals($response->getEtag(), sprintf('"%s"', GetTimeResponse::ETAG_TIME));
     }
 
@@ -68,7 +68,7 @@ class GetTimeResponseTest extends TestCase
      */
     public function construct__itSetsAnArrayOfData()
     {
-        $response = new \App\ApplicationSetting\Response\GetTimeResponse(0);
+        $response = new \App\ApplicationSetting\Http\Response\GetTimeResponse(0);
         $this->assertIsArray($response->getData(true));
     }
 
@@ -77,7 +77,7 @@ class GetTimeResponseTest extends TestCase
      */
     public function construct__itSetsAnArrayOfData_withATimeKey()
     {
-        $response = new GetTimeResponse(0);
+        $response = new \App\ApplicationSetting\Http\Response\GetTimeResponse(0);
         $this->assertArrayHasKey("time", $response->getData(true));
     }
 
@@ -86,7 +86,7 @@ class GetTimeResponseTest extends TestCase
      */
     public function construct__itSetsAnArrayOfData_withATimeArray()
     {
-        $response = new \App\ApplicationSetting\Response\GetTimeResponse(0);
+        $response = new \App\ApplicationSetting\Http\Response\GetTimeResponse(0);
         $this->assertIsArray($response->getData(true)['time']);
     }
 
@@ -95,7 +95,7 @@ class GetTimeResponseTest extends TestCase
      */
     public function construct__itSetsAnArrayOfData_withATimeKey_containingACurrentKey()
     {
-        $response = new \App\ApplicationSetting\Response\GetTimeResponse(0);
+        $response = new \App\ApplicationSetting\Http\Response\GetTimeResponse(0);
         $this->assertArrayHasKey("current", $response->getData(true)['time']);
     }
 

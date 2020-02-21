@@ -10,7 +10,7 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::namespace('\App\ApplicationSetting\Controller')->group(function () {
+Route::namespace('\App\ApplicationSetting\Http\Controller')->group(function () {
     Route::get('/time', ['uses' => 'ApplicationTimeController@index', 'as' => 'time.get']);
     Route::put('/time', ['uses' => 'ApplicationTimeController@update', 'as' => 'time.put']);
 });
