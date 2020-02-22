@@ -10,6 +10,7 @@ use App\ApplicationSetting\Exception\ApplicationTimeDoesNotMatchObservedTimeExce
 use App\ApplicationSetting\Http\Controller\ApplicationTimeController;
 use App\ApplicationSetting\Http\Response\GetApplicationTimeResponse;
 use App\Lib\Enum\Http\Request\Header;
+use Illuminate\Contracts\Container\Container as ContainerContract;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,12 +20,41 @@ use Tests\Unit\UnitTestCase;
 class ApplicationTimeControllerUnitTest extends UnitTestCase
 {
     /**
+     * Creates a new controller instance.
+     *
+     * @param ContainerContract|null $customContainer
+     * @return ApplicationTimeController
+     */
+    protected function createController(&$customContainer = null): ApplicationTimeController
+    {
+        $providedWithContainer = $customContainer instanceof ContainerContract;
+        if (! $providedWithContainer) {
+            $container = $this->getMockBuilder(ContainerContract::class)->getMock();
+        } else {
+            $container = $customContainer;
+        }
+        $controller = new ApplicationTimeController($container);
+        if (! $providedWithContainer) {
+            $container->expects($this->any())
+                ->method('call')
+                ->willReturnCallback(function ($callable, $parameters) {
+                    $result = null;
+                    if (is_array($callable) && $callable[1] === 'index') {
+                        $result = new GetApplicationTimeResponse(1);
+                    }
+                    return $result;
+                });
+        }
+        return $controller;
+    }
+
+    /**
      * @test
      * @covers ApplicationTimeController::index
      */
     public function index__itIsCallable()
     {
-        $this->assertIsCallable([new ApplicationTimeController(), 'index']);
+        $this->assertIsCallable([$this->createController(), 'index']);
     }
 
     /**
@@ -41,7 +71,7 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
             ->method('findOneById')
             ->with(ApplicationSettingName::TIME)
             ->willReturn($model);
-        $controller = new ApplicationTimeController();
+        $controller = $this->createController();
         $response =  $controller->index($repository);
         $this->assertInstanceOf(GetApplicationTimeResponse::class, $response);
     }
@@ -60,7 +90,7 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
             ->method('findOneById')
             ->with(ApplicationSettingName::TIME)
             ->willReturn($model);
-        $controller = new ApplicationTimeController();
+        $controller = $this->createController();
         $response =  $controller->index($repository);
         $this->assertEquals($time, $response->getApplicationTime());
     }
@@ -71,7 +101,7 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function update__itIsCallable()
     {
-        $this->assertIsCallable([new ApplicationTimeController(), 'update']);
+        $this->assertIsCallable([$this->createController(), 'update']);
     }
 
     /**
@@ -80,7 +110,7 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function update__itDispatchesCommand()
     {
-        $controller = new ApplicationTimeController();
+        $controller = $this->createController();
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
         $commandBus->expects($this->once())->method('handle')->willReturn(1);
         $request = $this->getMockBuilder(Request::class)->getMock();
@@ -93,7 +123,7 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function update__itDispatchesCommandToIncrementTime()
     {
-        $controller = new ApplicationTimeController();
+        $controller = $this->createController();
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
         $commandBus->expects($this->once())
             ->method('handle')
@@ -109,7 +139,7 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function update__itDispatchesCommandToIncrementTimeByTenSeconds()
     {
-        $controller = new ApplicationTimeController();
+        $controller = $this->createController();
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
         $commandBus->expects($this->once())
             ->method('handle')
@@ -127,7 +157,7 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function update__whenProvidedPreConditionGreaterThanOne_itDispatchesCommandToIncrementTimeWithNoPreCondition()
     {
-        $controller = new ApplicationTimeController();
+        $controller = $this->createController();
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
         $commandBus->expects($this->once())
             ->method('handle')
@@ -146,7 +176,7 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function update__whenProvidedPreConditionGreaterThanOne_itDispatchesCommandToIncrementTimeWithPreCondition(int $preConditionValue)
     {
-        $controller = new ApplicationTimeController();
+        $controller = $this->createController();
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
         $commandBus->expects($this->once())
             ->method('handle')
@@ -167,7 +197,7 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function update__whenProvidedPreConditionLessThanOne_itReturnsJsonResponse(int $preConditionValue)
     {
-        $controller = new ApplicationTimeController();
+        $controller = $this->createController();
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
         $request = $this->getMockBuilder(Request::class)->getMock();
         $request->expects($this->any())->method('header')->with(Header::IF_MATCH)->willReturn($preConditionValue);
@@ -183,7 +213,7 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function update__whenProvidedPreConditionLessThanOne_itReturnsPreconditionFailedHttpStatusCode(int $preConditionValue)
     {
-        $controller = new ApplicationTimeController();
+        $controller = $this->createController();
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
         $request = $this->getMockBuilder(Request::class)->getMock();
         $request->expects($this->any())->method('header')->with(Header::IF_MATCH)->willReturn($preConditionValue);
@@ -197,9 +227,8 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function update__whenSuccessful_itReturnsJsonResponse()
     {
-        $controller = new ApplicationTimeController();
+        $controller = $this->createController();
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
-        $commandBus->method('handle')->willReturn(7);
         $request = $this->getMockBuilder(Request::class)->getMock();
         $response = $controller->update($commandBus, $request);
         $this->assertInstanceOf(GetApplicationTimeResponse::class, $response);
@@ -209,14 +238,18 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      * @test
      * @covers ApplicationTimeController::update
      */
-    public function update__whenSuccessful_itReturnsGetTimeResponse_withUpdatedTime()
+    public function update__whenSuccessful_itReturnsCallToIndex()
     {
-        $controller = new ApplicationTimeController();
+        $container = $this->getMockBuilder(ContainerContract::class)->getMock();
+        $controller = $this->createController($container);
+        $container->expects($this->atLeastOnce())
+            ->method('call')
+            ->with([$controller, 'index'], [])
+            ->willReturn($expectedResult = new GetApplicationTimeResponse(1));
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
-        $commandBus->method('handle')->willReturn($expectedUpdatedTime = 7);
         $request = $this->getMockBuilder(Request::class)->getMock();
         $response = $controller->update($commandBus, $request);
-        $this->assertSame($expectedUpdatedTime, $response->getApplicationTime());
+        $this->assertSame($expectedResult, $response);
     }
 
     /**
@@ -225,7 +258,7 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function update__whenPreconditionFails_itReturnsJsonResponse()
     {
-        $controller = new ApplicationTimeController();
+        $controller = $this->createController();
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
         $preConditionException = new ApplicationTimeDoesNotMatchObservedTimeException();
         $commandBus->method('handle')->willThrowException($preConditionException);
@@ -240,7 +273,7 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function update__whenPreconditionFails_itReturnsPreconditionFailedHttpStatusCode()
     {
-        $controller = new ApplicationTimeController();
+        $controller = $this->createController();
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
         $preConditionException = new ApplicationTimeDoesNotMatchObservedTimeException();
         $commandBus->method('handle')->willThrowException($preConditionException);

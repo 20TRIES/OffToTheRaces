@@ -51,10 +51,14 @@ class ApplicationTimeController extends Controller
         if (null === $observedTime || $observedTime > 0) {
             $command = new IncrementApplicationTimeCommand(static::SECONDS_TO_INCREMENT_BY, $observedTime);
             try {
-                $updatedTime = $commandBus->handle($command);
-                $response = new GetApplicationTimeResponse($updatedTime);
-            } catch (ApplicationTimeDoesNotMatchObservedTimeException $exception) {}
+                $commandBus->handle($command);
+                $response = $this->callAction('index');
+            } catch (ApplicationTimeDoesNotMatchObservedTimeException $exception) {
+                $response = new JsonResponse([], Response::HTTP_PRECONDITION_FAILED);
+            }
+        } else {
+            $response = new JsonResponse([], Response::HTTP_PRECONDITION_FAILED);
         }
-        return $response ?? new JsonResponse([], Response::HTTP_PRECONDITION_FAILED);
+        return $response;
     }
 }

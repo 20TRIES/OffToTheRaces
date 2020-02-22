@@ -11,5 +11,5 @@ abstract class Repository
      *
      * @return Builder
      */
-    abstract static function newQueryBuilder(): Builder;
+    abstract public function newQueryBuilder(): Builder;
 }

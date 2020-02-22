@@ -3,11 +3,10 @@
 namespace App\ApplicationSetting\Command\Handler;
 
 use App\ApplicationSetting\Command\IncrementApplicationTimeCommand;
-use App\Exceptions\FailedToSaveModelException;
-use App\ApplicationSetting\ApplicationSettingModel;
 use App\ApplicationSetting\ApplicationSettingName;
 use App\ApplicationSetting\Exception\ApplicationTimeDoesNotMatchObservedTimeException;
 use App\ApplicationSetting\ApplicationSettingRepository;
+use App\ApplicationSetting\Exception\FailedToIncrementTimeException;
 use App\Lib\Command\Command;
 use App\Lib\Command\HandlerInterface;
 
@@ -31,27 +30,21 @@ class IncrementApplicationTimeHandler implements HandlerInterface
 
     /**
      * @param Command|IncrementApplicationTimeCommand $command
-     * @return int
      * @throws ApplicationTimeDoesNotMatchObservedTimeException
-     * @throws FailedToSaveModelException
+     * @throws FailedToIncrementTimeException
      */
     public function handle($command)
     {
-        $setting = $this->settingRepository->findOneById(ApplicationSettingName::TIME);
-        $currentTime = (int) $setting->getValue();
+        $query = $this->settingRepository->newQueryBuilder()->where('id', ApplicationSettingName::TIME);
         $observedTime = $command->getObservedTime();
-        $query = ApplicationSettingModel::query()->where('id', ApplicationSettingName::TIME);
         if (null !== $observedTime) {
             $query = $query->where('value', $observedTime);
         }
-        $numberOfRowsUpdated = $query->update(['value' => $updatedTime = $currentTime + $command->getSecondsToIncrementBy()]);
-        if (null !== $observedTime && $numberOfRowsUpdated < 1) {
-            throw new ApplicationTimeDoesNotMatchObservedTimeException();
+        if ($query->increment('value', $command->getSecondsToIncrementBy()) < 1) {
+            if (null !== $observedTime) {
+                throw new ApplicationTimeDoesNotMatchObservedTimeException();
+            }
+            throw new FailedToIncrementTimeException();
         }
-        if (true !== $setting->save()) {
-            throw new FailedToSaveModelException();
-        }
-        $setting = $setting->fresh();
-        return (int) $setting->getValue();
     }
 }
