@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\ApplicationSetting\Command\Handler\IncrementApplicationTimeHandler;
 use App\ApplicationSetting\Command\IncrementApplicationTimeCommand;
+use App\Race\Command\CreateRaceCommand;
+use App\Race\Command\Handler\CreateRaceHandler;
 use Illuminate\Support\ServiceProvider;
 use League\Tactician\CommandBus;
 use League\Tactician\Container\ContainerLocator;
@@ -16,10 +18,11 @@ use League\Tactician\Plugins\LockingMiddleware;
 class CommandBusServiceProvider extends ServiceProvider
 {
     /**
-     * @var array<array<string, callable>>
+     * @var array<string>
      */
     const MAPPINGS = [
         IncrementApplicationTimeCommand::class => IncrementApplicationTimeHandler::class,
+        CreateRaceCommand::class => CreateRaceHandler::class,
     ];
 
     public function __construct($app)

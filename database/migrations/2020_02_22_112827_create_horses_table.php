@@ -17,10 +17,12 @@ class CreateHorsesTable extends Migration
             $table->bigIncrements('id');
             $table->string('short_name', 36);
             $table->string('name', 50);
-            $table->tinyInteger('speed', false, true);
-            $table->tinyInteger('strength', false, true);
-            $table->tinyInteger('endurance', false, true);
+            $table->decimal('base_speed', 3, 1);
+            $table->decimal('speed_stat', 3, 1);
+            $table->decimal('strength_stat', 3, 1);
+            $table->decimal('endurance_stat', 3, 1);
             $table->timestamps();
+            $table->unique('short_name');
         });
     }
 

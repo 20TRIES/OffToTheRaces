@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateHorseRaceTable extends Migration
+class CreateRacePerformanceTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateHorseRaceTable extends Migration
      */
     public function up()
     {
-        Schema::create('horse_race', function (Blueprint $table) {
+        Schema::create('race_performance', function (Blueprint $table) {
             $table->bigInteger('horse_id', false, true);
             $table->foreign('horse_id')
                 ->references('id')
@@ -27,7 +27,6 @@ class CreateHorseRaceTable extends Migration
                 ->onDelete('CASCADE')
                 ->onUpdate('CASCADE');
             $table->smallInteger('time_to_finish', false, true);
-            $table->timestamps();
         });
     }
 
@@ -38,6 +37,6 @@ class CreateHorseRaceTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('horse_race');
+        Schema::dropIfExists('race_performance');
     }
 }

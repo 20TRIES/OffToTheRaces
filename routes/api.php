@@ -15,3 +15,7 @@ Route::namespace('\App\ApplicationSetting\Http\Controller')->group(function () {
     Route::put('/time', ['uses' => 'ApplicationTimeController@update', 'as' => 'time.put']);
 });
 
+Route::namespace('\App\Race\Http\Controller')->group(function () {
+    Route::post('/race', ['uses' => 'RaceController@store', 'as' => 'race.store']);
+});
+

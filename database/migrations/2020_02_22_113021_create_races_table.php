@@ -17,9 +17,11 @@ class CreateRacesTable extends Migration
             $table->bigIncrements('id');
             $table->string('short_name', 36);
             $table->string('name', 50);
-            $table->time('started_at');
+            $table->timestamp('finished_at')->nullable()->default(null);
             $table->smallInteger('length', false, true);
             $table->timestamps();
+            $table->index('finished_at');
+            $table->unique('short_name');
         });
     }
 

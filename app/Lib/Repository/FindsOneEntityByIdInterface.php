@@ -4,7 +4,7 @@ namespace App\Lib\Repository;
 
 use Illuminate\Database\Eloquent\Model;
 
-interface FindsOneModelByIdInterface
+interface FindsOneEntityByIdInterface
 {
     /**
      * Finds a model by its id.

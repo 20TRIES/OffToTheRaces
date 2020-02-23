@@ -5,7 +5,7 @@ namespace App\Lib\Repository;
 use App\ApplicationSetting\ApplicationSettingModel;
 use Illuminate\Database\Eloquent\Model;
 
-trait FindsModelsByIdTrait
+trait FindsOneEntityByIdTrait
 {
     /**
      * Finds a model by id.
