@@ -3,10 +3,10 @@
 namespace App\Race;
 
 use App\Horse\HorseModel;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class RacePerformanceModel extends Model
+class RaceHorsePerformanceModel extends Pivot
 {
     /**
      * @var string
@@ -31,7 +31,7 @@ class RacePerformanceModel extends Model
     /**
      * @var string
      */
-    protected $table = 'race_performance';
+    protected $table = 'race_horse_performance';
 
     /**
      * @var bool

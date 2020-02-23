@@ -13,8 +13,8 @@ use App\Race\Command\CreateRaceCommand;
 use App\Race\Exception\InvalidRaceLengthException;
 use App\Race\Exception\MaxActiveRacesAlreadyReachedException;
 use App\Race\RaceModel;
-use App\Race\RacePerformanceModel;
-use App\Race\RacePerformanceRepository;
+use App\Race\RaceHorsePerformanceModel;
+use App\Race\RaceHorsePerformanceRepository;
 use App\Race\RaceRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -55,7 +55,7 @@ class CreateRaceHandler implements HandlerInterface
     protected $horseRepository;
 
     /**
-     * @var RacePerformanceRepository
+     * @var RaceHorsePerformanceRepository
      */
     protected $racePerformanceRepository;
 
@@ -63,13 +63,13 @@ class CreateRaceHandler implements HandlerInterface
      * @param ApplicationSettingRepository $settingRepository
      * @param RaceRepository $raceRepository
      * @param HorseRepository $horseRepository
-     * @param RacePerformanceRepository $racePerformanceRepository
+     * @param RaceHorsePerformanceRepository $racePerformanceRepository
      */
     public function __construct(
         ApplicationSettingRepository $settingRepository,
         RaceRepository $raceRepository,
         HorseRepository $horseRepository,
-        RacePerformanceRepository $racePerformanceRepository
+        RaceHorsePerformanceRepository $racePerformanceRepository
     )
     {
         $this->settingRepository = $settingRepository;
@@ -104,7 +104,7 @@ class CreateRaceHandler implements HandlerInterface
             $this->horseRepository->persist(...$horses);
             $racePerformances = $timesToFinish = [];
             foreach ($horses as $horse) {
-                $racePerformances[] = $racePerformance = RacePerformanceModel::createFromHorseAndRace($horse, $race);
+                $racePerformances[] = $racePerformance = RaceHorsePerformanceModel::createFromHorseAndRace($horse, $race);
                 $timesToFinish[] = $racePerformance->getTimeToFinish();
             }
             $this->racePerformanceRepository->persist(...$racePerformances);

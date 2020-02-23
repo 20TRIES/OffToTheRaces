@@ -7,7 +7,7 @@ use App\Lib\Repository\PersistsEntitiesTrait;
 use App\Lib\Repository\Repository;
 use Illuminate\Database\Eloquent\Builder;
 
-class RacePerformanceRepository extends Repository implements PersistsEntitiesInterface
+class RaceHorsePerformanceRepository extends Repository implements PersistsEntitiesInterface
 {
     use PersistsEntitiesTrait;
 
@@ -16,6 +16,6 @@ class RacePerformanceRepository extends Repository implements PersistsEntitiesIn
      */
     public function newQueryBuilder(): Builder
     {
-        return RacePerformanceModel::query();
+        return RaceHorsePerformanceModel::query();
     }
 }

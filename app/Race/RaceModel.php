@@ -65,7 +65,17 @@ class RaceModel extends Model
      */
     public function horses()
     {
-        return $this->belongsToMany(HorseModel::class, 'horse_races');
+        return $this
+            ->belongsToMany(
+                HorseModel::class,
+                'race_horse_performance',
+                'race_id',
+                'horse_id'
+            )
+            ->using(RaceHorsePerformanceModel::class)
+            ->withPivot([
+                RaceHorsePerformanceModel::ATTRIBUTE_TIME_TO_FINISH
+            ]);
     }
 
     /**

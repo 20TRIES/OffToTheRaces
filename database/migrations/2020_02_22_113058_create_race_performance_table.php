@@ -13,18 +13,18 @@ class CreateRacePerformanceTable extends Migration
      */
     public function up()
     {
-        Schema::create('race_performance', function (Blueprint $table) {
-            $table->bigInteger('horse_id', false, true);
-            $table->foreign('horse_id')
-                ->references('id')
-                ->on('horses')
-                ->onDelete('RESTRICT')
-                ->onUpdate('CASCADE');
+        Schema::create('race_horse_performance', function (Blueprint $table) {
             $table->bigInteger('race_id', false, true);
             $table->foreign('race_id')
                 ->references('id')
                 ->on('races')
                 ->onDelete('CASCADE')
+                ->onUpdate('CASCADE');
+            $table->bigInteger('horse_id', false, true);
+            $table->foreign('horse_id')
+                ->references('id')
+                ->on('horses')
+                ->onDelete('RESTRICT')
                 ->onUpdate('CASCADE');
             $table->smallInteger('time_to_finish', false, true);
         });
@@ -37,6 +37,6 @@ class CreateRacePerformanceTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('race_performance');
+        Schema::dropIfExists('race_horse_performance');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Horse;
 
+use App\Race\RaceHorsePerformanceModel;
 use Faker\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -307,5 +308,41 @@ class HorseModel extends Model
         $metersRunningHindered = max($meters - $metersRunningUnhindered, 0);
         $secondsRunningHindered = $metersRunningHindered / $this->getLadenSpeed();
         return $secondsRunningUnhindered + $secondsRunningHindered;
+    }
+
+    /**
+     * Gets the race horse performance if "pivot" relation has been loaded.
+     *
+     * @return RaceHorsePerformanceModel|null
+     */
+    public function getRaceHorsePerformance()
+    {
+        return $this->getRelation('pivot');
+    }
+
+    /**
+     * Gets the number of seconds that a horse is able to run at its unladen speed.
+     *
+     * @return float
+     */
+    public function getSecondsAbleToRunAtUnladenSpeed(): float
+    {
+        return $this->getUnladenMeters() / $this->getUnladenSpeed();
+    }
+
+    /**
+     * Calculates the number of meters that a horse would cover in a given number of seconds.
+     *
+     * @param int $seconds
+     * @return int
+     */
+    public function calculateMetersCoverableInNSeconds(int $seconds): int
+    {
+        $unladenSpeed = $this->getUnladenSpeed();
+        $secondsRunUnladen = min($this->getSecondsAbleToRunAtUnladenSpeed(), $seconds);
+        $distanceCoveredUnladen = $unladenSpeed * $secondsRunUnladen;
+        $secondsRunLaden = $seconds - $secondsRunUnladen;
+        $distanceCoveredLaden = $this->getLadenSpeed() * $secondsRunLaden;
+        return $distanceCoveredUnladen + $distanceCoveredLaden;
     }
 }
