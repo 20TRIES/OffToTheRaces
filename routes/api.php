@@ -18,4 +18,5 @@ Route::namespace('\App\ApplicationSetting\Http\Controller')->group(function () {
 Route::namespace('\App\Race\Http\Controller')->group(function () {
     Route::post('/race', ['uses' => 'RaceController@store', 'as' => 'race.store']);
     Route::get('/races/active', ['uses' => 'ActiveRaceController@index', 'as' => 'race.active.index']);
+    Route::get('/races/finished', ['uses' => 'FinishedRaceController@index', 'as' => 'race.finished.index']);
 });

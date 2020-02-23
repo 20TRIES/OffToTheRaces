@@ -7,9 +7,19 @@ use Illuminate\Database\Eloquent\Builder;
 abstract class Repository
 {
     /**
+     * Gets the class reference for the model that a repository should use.
+     *
+     * @return string
+     */
+    abstract public function getModelClassReference(): string;
+
+    /**
      * Gets a new query builder instance.
      *
      * @return Builder
      */
-    abstract public function newQueryBuilder(): Builder;
+    public function newQueryBuilder(): Builder
+    {
+        return call_user_func([$this->getModelClassReference(), 'query']);
+    }
 }

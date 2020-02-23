@@ -5,17 +5,16 @@ namespace App\Race;
 use App\Lib\Repository\PersistsEntitiesInterface;
 use App\Lib\Repository\PersistsEntitiesTrait;
 use App\Lib\Repository\Repository;
-use Illuminate\Database\Eloquent\Builder;
 
 class RaceHorsePerformanceRepository extends Repository implements PersistsEntitiesInterface
 {
     use PersistsEntitiesTrait;
 
     /**
-     * @return Builder
+     * @return string
      */
-    public function newQueryBuilder(): Builder
+    public function getModelClassReference(): string
     {
-        return RaceHorsePerformanceModel::query();
+        return RaceHorsePerformanceModel::class;
     }
 }

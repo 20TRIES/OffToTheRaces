@@ -7,18 +7,17 @@ use App\Lib\Repository\FindsOneEntityByIdTrait;
 use App\Lib\Repository\FindsOneEntityByIdInterface;
 use App\Lib\Repository\Repository;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 
 class ApplicationSettingRepository extends Repository implements FindsOneEntityByIdInterface
 {
     use FindsOneEntityByIdTrait;
 
     /**
-     * @return Builder
+     * @return string
      */
-    public function newQueryBuilder(): Builder
+    public function getModelClassReference(): string
     {
-        return ApplicationSettingModel::query();
+        return ApplicationSettingModel::class;
     }
 
     /**
