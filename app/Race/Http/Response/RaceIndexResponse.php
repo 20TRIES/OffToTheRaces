@@ -14,9 +14,10 @@ class RaceIndexResponse extends JsonResponse
 {
     /**
      * @param Carbon $applicationTime
+     * @param int|null $numberOfHorsesToReport [$numberOfHorsesToReport=null]
      * @param array<RaceModel> $races
      */
-    public function __construct(Carbon $applicationTime, array $races)
+    public function __construct(Carbon $applicationTime, array $races, int $numberOfHorsesToReport = null)
     {
         $data = [
             'time' => [
@@ -62,6 +63,9 @@ class RaceIndexResponse extends JsonResponse
             });
             foreach ($raceData['horses'] as $key => $horse) {
                 $raceData['horses'][$key]['position'] = $key + 1;
+            }
+            if (null !== $numberOfHorsesToReport) {
+                $raceData['horses'] = array_slice($raceData['horses'], 0, $numberOfHorsesToReport);
             }
             $data['races'][] = $raceData;
         }
