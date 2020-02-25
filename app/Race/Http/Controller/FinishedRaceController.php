@@ -21,19 +21,22 @@ class FinishedRaceController extends Controller
     const DEFAULT_NUMBER_OF_HORSES_TO_REPORT = 3;
 
     /**
-     * Handles a request from a user to get the latest races.
+     * Handles a request from a user to get the latest races of a given length.
      *
+     * @param int $raceLength
      * @param ApplicationSettingRepository $settingRepository
      * @param RaceRepository $raceRepository
      * @return RaceIndexResponse
      * @throws ApplicationTimeNotFoundException
      */
-    public function index(ApplicationSettingRepository $settingRepository, RaceRepository $raceRepository)
+    public function index(int $raceLength, ApplicationSettingRepository $settingRepository, RaceRepository $raceRepository)
     {
         $applicationTime = $settingRepository->getApplicationTime();
-        $races = $raceRepository->getLastNRacesThatEndOnOrBefore(static::DEFAULT_NUMBER_OF_RESULTS, $applicationTime)
-            ->load(['horses'])
-            ->all();
+        $races = $raceRepository->getLastNRacesOfGivenLengthThatEndOnOrBefore(
+            $raceLength,
+            $applicationTime,
+            static::DEFAULT_NUMBER_OF_RESULTS
+        )->load(['horses']);
         return new RaceIndexResponse($applicationTime, $races, static::DEFAULT_NUMBER_OF_HORSES_TO_REPORT);
     }
 }

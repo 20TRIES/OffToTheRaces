@@ -101,13 +101,15 @@ class RaceRepository extends Repository implements FindsOneEntityByIdInterface, 
     /**
      * Gets the last "n" races that ended before a given time.
      *
-     * @param int $limit
+     * @param int $length
      * @param Carbon $time
+     * @param int $limit
      * @return Collection
      */
-    public function getLastNRacesThatEndOnOrBefore(int $limit, Carbon $time): Collection
+    public function getLastNRacesOfGivenLengthThatEndOnOrBefore(int $length, Carbon $time, int $limit): Collection
     {
         return $this->filterQueryToRacesThatEndOnOrBefore($this->newQueryBuilder(), $time)
+            ->where(RaceModel::ATTRIBUTE_LENGTH, $length)
             ->orderBy(RaceModel::ATTRIBUTE_FINISHED_AT, 'DESC')
             ->limit($limit)
             ->get();

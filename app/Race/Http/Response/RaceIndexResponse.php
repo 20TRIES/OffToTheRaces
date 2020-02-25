@@ -14,10 +14,10 @@ class RaceIndexResponse extends JsonResponse
 {
     /**
      * @param Carbon $applicationTime
+     * @param iterable $races
      * @param int|null $numberOfHorsesToReport [$numberOfHorsesToReport=null]
-     * @param array<RaceModel> $races
      */
-    public function __construct(Carbon $applicationTime, array $races, int $numberOfHorsesToReport = null)
+    public function __construct(Carbon $applicationTime, iterable $races, int $numberOfHorsesToReport = null)
     {
         $data = [
             'time' => [
@@ -26,7 +26,7 @@ class RaceIndexResponse extends JsonResponse
             'races' => [],
             'pagination' => [
                 'current_page' => [
-                    'size' => count($races),
+                    'size' => 0,
                 ],
             ],
         ];
@@ -55,6 +55,7 @@ class RaceIndexResponse extends JsonResponse
                 ];
             }
             $data['races'][] = $raceData;
+            ++$data['pagination']['current_page']['size'];
         }
         parent::__construct($data);
     }
