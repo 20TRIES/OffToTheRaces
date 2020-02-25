@@ -39,33 +39,20 @@ class RaceIndexResponse extends JsonResponse
                 'finished_at' => $finishTime->gt($applicationTime) ? null : $finishTime->toDateTimeString(),
                 'horses' => [],
             ];
-            $timesToFinish = [];
-            foreach ($race->horses as $horse) {
-                assert($horse instanceof HorseModel);
-                $timesToFinish[] = $horse->getPerformance()->getTimeToFinish();
-            }
-            $raceStartTime = $finishTime->subSeconds(max($timesToFinish));
+            $raceStartTime = $race->calculateStartTime();
             $raceData['start_time'] = $raceStartTime->toIso8601String();
-            $secondsElapsedSinceBeginningOfRace = $raceStartTime->diffInSeconds($applicationTime);
-            foreach ($race->horses as $horse) {
+            $secondsIntoRace = $raceStartTime->diffInSeconds($applicationTime);
+            foreach ($race->getHorses()->sortByDistanceCoveredAfterNSeconds($secondsIntoRace)->values() as $key => $horse) {
                 assert($horse instanceof HorseModel);
+                if (null !== $numberOfHorsesToReport && count($raceData['horses']) >= $numberOfHorsesToReport) {
+                    break;
+                }
                 $raceData['horses'][] = [
                     'id' => $horse->getShortName(),
                     'name' => $horse->getName(),
-                    'distance_covered' => $secondsElapsedSinceBeginningOfRace < 1 ? 0 : $horse->calculateMetersCoverableInNSeconds($secondsElapsedSinceBeginningOfRace),
+                    'distance_covered' => $secondsIntoRace ? $horse->calculateMetersCoverableInNSeconds($secondsIntoRace) : 0,
+                    'position' => $key + 1,
                 ];
-                $timesToFinish[] = $horse->getPerformance()->getTimeToFinish();
-            }
-            usort($raceData['horses'], function ($a, $b) {
-                $aVal = $a['distance_covered'] ?? 0;
-                $bVal = $b['distance_covered'] ?? 0;
-                return $aVal == $bVal ? 0 : ($aVal < $bVal) ? -1 : 1;
-            });
-            foreach ($raceData['horses'] as $key => $horse) {
-                $raceData['horses'][$key]['position'] = $key + 1;
-            }
-            if (null !== $numberOfHorsesToReport) {
-                $raceData['horses'] = array_slice($raceData['horses'], 0, $numberOfHorsesToReport);
             }
             $data['races'][] = $raceData;
         }

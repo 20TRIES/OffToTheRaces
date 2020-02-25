@@ -3,9 +3,11 @@
 namespace App\Race;
 
 use App\Horse\HorseModel;
+use App\Horse\HorseModelCollection;
 use App\Performance\RaceHorsePerformanceModel;
 use App\Race\Exception\InvalidRaceLengthException;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
@@ -82,6 +84,16 @@ class RaceModel extends Model
             ->withPivot([
                 RaceHorsePerformanceModel::ATTRIBUTE_TIME_TO_FINISH
             ]);
+    }
+
+    /**
+     * Gets the horses that run a race.
+     *
+     * @return HorseModelCollection<HorseModel>
+     */
+    public function getHorses(): HorseModelCollection
+    {
+        return $this->getRelation('horses');
     }
 
     /**
@@ -179,5 +191,20 @@ class RaceModel extends Model
             throw new InvalidRaceLengthException();
         }
         return $this->setAttribute(static::ATTRIBUTE_LENGTH, $length);
+    }
+
+    /**
+     * Calculates the start time of a race.
+     *
+     * @return Carbon
+     */
+    public function calculateStartTime(): Carbon
+    {
+        $timesToFinish = [];
+        foreach ($this->getHorses() as $horse) {
+            assert($horse instanceof HorseModel);
+            $timesToFinish[] = $horse->getPerformance()->getTimeToFinish();
+        }
+        return $this->getFinishedAt()->subSeconds(max($timesToFinish));
     }
 }

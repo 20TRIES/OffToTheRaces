@@ -5,6 +5,7 @@ namespace App\Horse;
 use App\Performance\RaceHorsePerformanceModel;
 use App\Race\RaceModel;
 use Faker\Factory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
@@ -101,6 +102,15 @@ class HorseModel extends Model
         $horse->initializeStrengthStat();
         $horse->initializeEnduranceStat();
         return $horse;
+    }
+
+    /**
+     * @param  array<HorseModel> $models
+     * @return Collection
+     */
+    public function newCollection(array $models = [])
+    {
+        return new HorseModelCollection($models);
     }
 
     /**
