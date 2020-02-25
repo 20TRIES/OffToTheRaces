@@ -56,6 +56,7 @@ class RaceIndexResponse extends JsonResponse
                 $distanceCovered = (int) floor(min($secondsIntoRace ? $horse->calculateMetersCoverableInNSeconds($secondsIntoRace) : 0, $raceLength));
                 $secondsForHorseToCompleteRace = $horse->getPerformance()->getSecondsToFinish();
                 $horseHasCompletedRace = $distanceCovered === $raceLength;
+                $secondsHorseHasRun = min($secondsIntoRace, $secondsForHorseToCompleteRace);;
 
                 if ($horseHasCompletedRace) {
                     if ($secondsForHorseToCompleteRace !== $timeTakenAtLastPosition) {
@@ -65,13 +66,14 @@ class RaceIndexResponse extends JsonResponse
                     }
                 } elseif ($distanceCovered !== $distanceAchievedAtLastPosition) {
                     $distanceAchievedAtLastPosition = $distanceCovered;
-                    $timeTakenAtLastPosition = min($secondsIntoRace, $secondsForHorseToCompleteRace);
+                    $timeTakenAtLastPosition = $secondsHorseHasRun;
                     ++$currentPosition;
                 }
                 $raceData['horses'][] = [
                     'id' => $horse->getShortName(),
                     'name' => $horse->getName(),
                     'distance_covered' => $distanceCovered,
+                    'seconds_run' => $secondsHorseHasRun,
                     'position' => $currentPosition,
                 ];
             }
