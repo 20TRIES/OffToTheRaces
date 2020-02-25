@@ -12,7 +12,7 @@ class StoreRaceRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:50|min:1'
+            'name' => 'string|max:50|min:1'
         ];
     }
 }

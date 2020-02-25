@@ -46,7 +46,7 @@ class RaceController extends Controller
     {
         $input = $request->only(['name']);
         try {
-            $race = $commandBus->handle(new CreateRaceCommand($input['name']));
+            $race = $commandBus->handle(new CreateRaceCommand($input['name'] ?? null));
             $response = new ShowRaceResponse($race);
         } catch (MaxActiveRacesAlreadyReachedException $exception) {
             $response = new JsonResponse(['errors' => [

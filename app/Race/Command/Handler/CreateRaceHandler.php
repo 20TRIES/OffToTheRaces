@@ -8,6 +8,7 @@ use App\Horse\HorseModel;
 use App\Horse\HorseRepository;
 use App\Lib\Command\Command;
 use App\Lib\Command\HandlerInterface;
+use App\Lib\DateTime\Format;
 use App\Lib\Repository\Exception\FailedToSaveEntityException;
 use App\Race\Command\CreateRaceCommand;
 use App\Race\Exception\InvalidRaceLengthException;
@@ -97,7 +98,7 @@ class CreateRaceHandler implements HandlerInterface
             }
             $race = new RaceModel();
             $race->initializeShortName();
-            $race->setName($command->getName());
+            $race->setName($command->getName() ?? sprintf('Unnamed race (%s)', $applicationTime->format(Format::DEFAULT)));
             $race->setLength($raceLength = static::DEFAULT_RACE_LENGTH_METERS);
             $horses = $this->generateHorseModels(static::HORSES_PER_RACE);
             $this->raceRepository->persist($race);

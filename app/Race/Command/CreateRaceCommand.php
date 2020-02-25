@@ -11,14 +11,14 @@ use App\Race\Command\Handler\CreateRaceHandler;
 class CreateRaceCommand extends Command
 {
     /**
-     * @var string
+     * @var string|null
      */
     private $name;
 
     /**
-     * @param string $name
+     * @param string|null $name
      */
-    public function __construct(string $name)
+    public function __construct(string $name = null)
     {
         $this->name = $name;
     }
@@ -26,7 +26,7 @@ class CreateRaceCommand extends Command
     /**
      * @return string
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
