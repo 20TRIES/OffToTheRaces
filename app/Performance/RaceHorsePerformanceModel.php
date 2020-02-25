@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Race;
+namespace App\Performance;
 
 use App\Horse\HorseModel;
+use App\Race\RaceModel;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
@@ -24,6 +25,11 @@ class RaceHorsePerformanceModel extends Pivot
     const ATTRIBUTE_TIME_TO_FINISH = 'time_to_finish';
 
     /**
+     * @var string
+     */
+    const TABLE = 'race_horse_performance';
+
+    /**
      * @var bool
      */
     protected static $unguarded = true;
@@ -31,7 +37,7 @@ class RaceHorsePerformanceModel extends Pivot
     /**
      * @var string
      */
-    protected $table = 'race_horse_performance';
+    protected $table = self::TABLE;
 
     /**
      * @var bool
@@ -61,7 +67,17 @@ class RaceHorsePerformanceModel extends Pivot
      */
     public function race()
     {
-        return $this->hasOne(RaceModel::class);
+        return $this->hasOne(RaceModel::class, RaceModel::ATTRIBUTE_ID, static::ATTRIBUTE_RACE_ID);
+    }
+
+    /**
+     * Gets the race related to a performance.
+     *
+     * @return RaceModel|null
+     */
+    public function getRace(): ?RaceModel
+    {
+        return $this->getRelation('race');
     }
 
     /**
@@ -71,7 +87,17 @@ class RaceHorsePerformanceModel extends Pivot
      */
     public function horse()
     {
-        return $this->hasOne(HorseModel::class);
+        return $this->hasOne(HorseModel::class, HorseModel::ATTRIBUTE_ID, static::ATTRIBUTE_HORSE_ID);
+    }
+
+    /**
+     * Gets the horse related to a performance.
+     *
+     * @return HorseModel|null
+     */
+    public function getHorse(): ?HorseModel
+    {
+        return $this->getRelation('horse');
     }
 
     /**

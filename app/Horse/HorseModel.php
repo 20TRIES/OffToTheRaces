@@ -2,9 +2,11 @@
 
 namespace App\Horse;
 
-use App\Race\RaceHorsePerformanceModel;
+use App\Performance\RaceHorsePerformanceModel;
+use App\Race\RaceModel;
 use Faker\Factory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
 class HorseModel extends Model
@@ -45,6 +47,11 @@ class HorseModel extends Model
     const ATTRIBUTE_ENDURANCE_STAT = 'endurance_stat';
 
     /**
+     * @var string
+     */
+    const TABLE = 'horses';
+
+    /**
      * @var int
      */
     const DEFAULT_BASE_SPEED = 5;
@@ -72,7 +79,7 @@ class HorseModel extends Model
     /**
      * @var string
      */
-    protected $table = 'horses';
+    protected $table = self::TABLE;
 
     /**
      * @var string
@@ -94,6 +101,26 @@ class HorseModel extends Model
         $horse->initializeStrengthStat();
         $horse->initializeEnduranceStat();
         return $horse;
+    }
+
+    /**
+     * Gets the relationship between a horse and its races.
+     *
+     * @return BelongsToMany
+     */
+    public function races()
+    {
+        return $this->belongsToMany(RaceModel::class, RaceHorsePerformanceModel::TABLE, 'horse_id', 'race_id')->using(RaceHorsePerformanceModel::class);
+    }
+
+    /**
+     * Gets the race horse performance if "pivot" relation has been loaded.
+     *
+     * @return RaceHorsePerformanceModel|null
+     */
+    public function getPerformance()
+    {
+        return $this->getRelation('pivot');
     }
 
     /**
@@ -299,25 +326,15 @@ class HorseModel extends Model
      * Calculates the number of seconds that it would take a horse to run a given distance.
      *
      * @param float $meters
-     * @return int
+     * @return float
      */
-    public function calculateTimeToRunGivenDistance(float $meters): int
+    public function calculateTimeToRunGivenDistance(float $meters): float
     {
         $metersRunningUnhindered = $this->getUnladenMeters();
         $secondsRunningUnhindered = min($meters, $metersRunningUnhindered) / $this->getUnladenSpeed();
         $metersRunningHindered = max($meters - $metersRunningUnhindered, 0);
         $secondsRunningHindered = $metersRunningHindered / $this->getLadenSpeed();
         return $secondsRunningUnhindered + $secondsRunningHindered;
-    }
-
-    /**
-     * Gets the race horse performance if "pivot" relation has been loaded.
-     *
-     * @return RaceHorsePerformanceModel|null
-     */
-    public function getRaceHorsePerformance()
-    {
-        return $this->getRelation('pivot');
     }
 
     /**
@@ -334,9 +351,9 @@ class HorseModel extends Model
      * Calculates the number of meters that a horse would cover in a given number of seconds.
      *
      * @param int $seconds
-     * @return int
+     * @return float
      */
-    public function calculateMetersCoverableInNSeconds(int $seconds): int
+    public function calculateMetersCoverableInNSeconds(int $seconds): float
     {
         $unladenSpeed = $this->getUnladenSpeed();
         $secondsRunUnladen = min($this->getSecondsAbleToRunAtUnladenSpeed(), $seconds);
@@ -344,5 +361,16 @@ class HorseModel extends Model
         $secondsRunLaden = $seconds - $secondsRunUnladen;
         $distanceCoveredLaden = $this->getLadenSpeed() * $secondsRunLaden;
         return $distanceCoveredUnladen + $distanceCoveredLaden;
+    }
+
+    /**
+     * Gets a horses average speed over a given distance.
+     *
+     * @param float $meters
+     * @return float
+     */
+    public function calculateAverageSpeedOverNMeters(float $meters): float
+    {
+        return $meters / $this->calculateTimeToRunGivenDistance($meters);
     }
 }

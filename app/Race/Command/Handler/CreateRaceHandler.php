@@ -13,8 +13,8 @@ use App\Race\Command\CreateRaceCommand;
 use App\Race\Exception\InvalidRaceLengthException;
 use App\Race\Exception\MaxActiveRacesAlreadyReachedException;
 use App\Race\RaceModel;
-use App\Race\RaceHorsePerformanceModel;
-use App\Race\RaceHorsePerformanceRepository;
+use App\Performance\RaceHorsePerformanceModel;
+use App\Performance\RaceHorsePerformanceRepository;
 use App\Race\RaceRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -55,7 +55,7 @@ class CreateRaceHandler implements HandlerInterface
     protected $horseRepository;
 
     /**
-     * @var RaceHorsePerformanceRepository
+     * @var \App\Performance\RaceHorsePerformanceRepository
      */
     protected $racePerformanceRepository;
 
@@ -63,7 +63,7 @@ class CreateRaceHandler implements HandlerInterface
      * @param ApplicationSettingRepository $settingRepository
      * @param RaceRepository $raceRepository
      * @param HorseRepository $horseRepository
-     * @param RaceHorsePerformanceRepository $racePerformanceRepository
+     * @param \App\Performance\RaceHorsePerformanceRepository $racePerformanceRepository
      */
     public function __construct(
         ApplicationSettingRepository $settingRepository,

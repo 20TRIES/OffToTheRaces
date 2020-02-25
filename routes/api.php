@@ -20,3 +20,7 @@ Route::namespace('\App\Race\Http\Controller')->group(function () {
     Route::get('/races/active', ['uses' => 'ActiveRaceController@index', 'as' => 'race.active.index']);
     Route::get('/races/finished', ['uses' => 'FinishedRaceController@index', 'as' => 'race.finished.index']);
 });
+
+Route::namespace('\App\Performance\Http\Controller')->group(function () {
+    Route::get('/performances/fastest/{raceLength}', ['uses' => 'FastestPerformancesController@index', 'as' => 'performances.fastest.index']);
+});

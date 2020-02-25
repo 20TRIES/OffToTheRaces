@@ -42,7 +42,7 @@ class RaceIndexResponse extends JsonResponse
             $timesToFinish = [];
             foreach ($race->horses as $horse) {
                 assert($horse instanceof HorseModel);
-                $timesToFinish[] = $horse->getRaceHorsePerformance()->getTimeToFinish();
+                $timesToFinish[] = $horse->getPerformance()->getTimeToFinish();
             }
             $raceStartTime = $finishTime->subSeconds(max($timesToFinish));
             $raceData['start_time'] = $raceStartTime->toIso8601String();
@@ -54,7 +54,7 @@ class RaceIndexResponse extends JsonResponse
                     'name' => $horse->getName(),
                     'distance_covered' => $secondsElapsedSinceBeginningOfRace < 1 ? 0 : $horse->calculateMetersCoverableInNSeconds($secondsElapsedSinceBeginningOfRace),
                 ];
-                $timesToFinish[] = $horse->getRaceHorsePerformance()->getTimeToFinish();
+                $timesToFinish[] = $horse->getPerformance()->getTimeToFinish();
             }
             usort($raceData['horses'], function ($a, $b) {
                 $aVal = $a['distance_covered'] ?? 0;

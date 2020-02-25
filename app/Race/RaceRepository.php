@@ -2,7 +2,6 @@
 
 namespace App\Race;
 
-use App\Lib\Repository\Exception\ModelTimestampsDisabledException;
 use App\Lib\Repository\FindsOneEntityByIdTrait;
 use App\Lib\Repository\FindsOneEntityByIdInterface;
 use App\Lib\Repository\GetsLastNEntitiesInterface;
@@ -11,7 +10,8 @@ use App\Lib\Repository\PersistsEntitiesInterface;
 use App\Lib\Repository\PersistsEntitiesTrait;
 use App\Lib\Repository\Repository;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentQueryBuilder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Collection;
 
 class RaceRepository extends Repository implements FindsOneEntityByIdInterface, PersistsEntitiesInterface, GetsLastNEntitiesInterface
@@ -29,15 +29,31 @@ class RaceRepository extends Repository implements FindsOneEntityByIdInterface, 
     }
 
     /**
+     * Filters a given query to results that have a race length matching the given value.
+     *
+     * @param QueryBuilder|EloquentQueryBuilder $query
+     * @param int $length
+     * @param string $raceTable [$raceTable=RaceModel::TABLE]
+     * @return EloquentQueryBuilder|QueryBuilder
+     */
+    public static function filterQueryToRacesOfLength($query, int $length, string $raceTable = RaceModel::TABLE)
+    {
+        assert($query instanceof QueryBuilder || $query instanceof EloquentQueryBuilder);
+        return $query->where(sprintf("%s.%s", $raceTable, RaceModel::ATTRIBUTE_LENGTH), $length);
+    }
+
+    /**
      * Gets a query builder for a query to get any races that end after a given time.
      *
-     * @param Builder $query
+     * @param QueryBuilder|EloquentQueryBuilder $query
      * @param Carbon $time
-     * @return Builder
+     * @return QueryBuilder|EloquentQueryBuilder
      */
-    protected function filterQueryToRacesThatEndAfter(Builder $query, Carbon $time): Builder
+    public static function filterQueryToRacesThatEndAfter($query, Carbon $time)
     {
-        return $query->where(function (Builder $query) use ($time) {
+        assert($query instanceof QueryBuilder || $query instanceof EloquentQueryBuilder);
+        return $query->where(function ($query) use ($time) {
+            assert($query instanceof QueryBuilder || $query instanceof EloquentQueryBuilder);
             return $query->where(RaceModel::ATTRIBUTE_FINISHED_AT, '>', $time)
                 ->orWhereNull(RaceModel::ATTRIBUTE_FINISHED_AT);
         });
@@ -46,13 +62,15 @@ class RaceRepository extends Repository implements FindsOneEntityByIdInterface, 
     /**
      * Gets a query builder for a query to get any races that end after a given time.
      *
-     * @param Builder $query
+     * @param QueryBuilder|EloquentQueryBuilder $query
      * @param Carbon $time
-     * @return Builder
+     * @return QueryBuilder|EloquentQueryBuilder
      */
-    protected function filterQueryToRacesThatEndOnOrBefore(Builder $query, Carbon $time): Builder
+    public static function filterQueryToRacesThatEndOnOrBefore($query, Carbon $time)
     {
-        return $query->where(function (Builder $query) use ($time) {
+        assert($query instanceof QueryBuilder || $query instanceof EloquentQueryBuilder);
+        return $query->where(function ($query) use ($time) {
+            assert($query instanceof QueryBuilder || $query instanceof EloquentQueryBuilder);
             return $query->where(RaceModel::ATTRIBUTE_FINISHED_AT, '<=', $time)
                 ->whereNotNull(RaceModel::ATTRIBUTE_FINISHED_AT);
         });
@@ -91,6 +109,7 @@ class RaceRepository extends Repository implements FindsOneEntityByIdInterface, 
     {
         return $this->filterQueryToRacesThatEndOnOrBefore($this->newQueryBuilder(), $time)
             ->orderBy(RaceModel::ATTRIBUTE_FINISHED_AT, 'DESC')
+            ->limit($limit)
             ->get();
     }
 }

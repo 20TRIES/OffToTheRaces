@@ -3,6 +3,7 @@
 namespace App\Race;
 
 use App\Horse\HorseModel;
+use App\Performance\RaceHorsePerformanceModel;
 use App\Race\Exception\InvalidRaceLengthException;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -37,6 +38,11 @@ class RaceModel extends Model
     const ATTRIBUTE_LENGTH = 'length';
 
     /**
+     * @var string
+     */
+    const TABLE = 'races';
+
+    /**
      * @var bool
      */
     protected static $unguarded = true;
@@ -44,7 +50,7 @@ class RaceModel extends Model
     /**
      * @var string
      */
-    protected $table = 'races';
+    protected $table = self::TABLE;
 
     /**
      * @var string
