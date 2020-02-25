@@ -3,6 +3,7 @@
 namespace App\ApplicationSetting;
 
 use App\ApplicationSetting\Exception\ApplicationTimeNotFoundException;
+use App\Lib\DateTime\Format;
 use App\Lib\Repository\FindsOneEntityByIdTrait;
 use App\Lib\Repository\FindsOneEntityByIdInterface;
 use App\Lib\Repository\Repository;
@@ -32,6 +33,6 @@ class ApplicationSettingRepository extends Repository implements FindsOneEntityB
         if (null === $setting) {
             throw new ApplicationTimeNotFoundException();
         }
-        return Carbon::createFromTimestamp($setting->getValue());
+        return Carbon::createFromFormat(Format::DEFAULT, $setting->getValue());
     }
 }

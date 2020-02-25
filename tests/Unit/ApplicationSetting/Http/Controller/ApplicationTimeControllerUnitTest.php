@@ -2,14 +2,14 @@
 
 namespace Tests\Unit\ApplicationSetting\Http\Controller;
 
-use App\ApplicationSetting\ApplicationSettingModel;
-use App\ApplicationSetting\ApplicationSettingName;
 use App\ApplicationSetting\ApplicationSettingRepository;
 use App\ApplicationSetting\Command\IncrementApplicationTimeCommand;
 use App\ApplicationSetting\Exception\ApplicationTimeDoesNotMatchObservedTimeException;
 use App\ApplicationSetting\Http\Controller\ApplicationTimeController;
 use App\ApplicationSetting\Http\Response\GetApplicationTimeResponse;
+use App\Lib\DateTime\Format;
 use App\Lib\Enum\Http\Request\Header;
+use Carbon\Carbon;
 use Illuminate\Contracts\Container\Container as ContainerContract;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -37,14 +37,13 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function index__itReturnsAGetTimeResponse()
     {
-        $time = 1;
-        $model = new ApplicationSettingModel();
-        $model->setValue($time);
+        $now = Carbon::now();
+
         $repository = $this->getMockBuilder(ApplicationSettingRepository::class)->getMock();
         $repository->expects($this->any())
-            ->method('findOneById')
-            ->with(ApplicationSettingName::TIME)
-            ->willReturn($model);
+            ->method('getApplicationTime')
+            ->willReturn($now);
+
         $controller = $this->createController(ApplicationTimeController::class);
         $response =  $controller->index($repository);
         $this->assertInstanceOf(GetApplicationTimeResponse::class, $response);
@@ -56,17 +55,16 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function index__itReturnsAGetTimeResponse_withTheCurrentTime()
     {
-        $time = 1;
-        $model = new ApplicationSettingModel();
-        $model->setValue($time);
+        $now = Carbon::now();
+
         $repository = $this->getMockBuilder(ApplicationSettingRepository::class)->getMock();
         $repository->expects($this->any())
-            ->method('findOneById')
-            ->with(ApplicationSettingName::TIME)
-            ->willReturn($model);
+            ->method('getApplicationTime')
+            ->willReturn($now);
+
         $controller = $this->createController(ApplicationTimeController::class);
         $response =  $controller->index($repository);
-        $this->assertEquals($time, $response->getApplicationTime());
+        $this->assertEquals($now->format(Format::DEFAULT), $response->getApplicationTime());
     }
 
     /**
@@ -146,16 +144,16 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
     /**
      * @test
      * @covers ApplicationTimeController::update
-     * @testWith [7]
+     * @testWith ["2020-02-25 18:58:32"]
      */
-    public function update__whenProvidedPreConditionGreaterThanOne_itDispatchesCommandToIncrementTimeWithPreCondition(int $preConditionValue)
+    public function update__withValidPrecondition_itDispatchesCommandToIncrementTimeWithPreCondition(string $preConditionValue)
     {
         $controller = $this->createController(ApplicationTimeController::class);
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
         $commandBus->expects($this->once())
             ->method('handle')
             ->with($this->callback(function (IncrementApplicationTimeCommand $command) use ($preConditionValue) {
-                return $command->getObservedTime() === $preConditionValue;
+                return $command->getObservedTime()->format(Format::DEFAULT) === $preConditionValue;
             }))
             ->willReturn(1);
         $request = $this->getMockBuilder(Request::class)->getMock();
@@ -183,9 +181,8 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      * @test
      * @covers ApplicationTimeController::update
      * @testWith [0]
-     *           [-1]
      */
-    public function update__whenProvidedPreConditionLessThanOne_itReturnsPreconditionFailedHttpStatusCode(int $preConditionValue)
+    public function update__whenProvidedInvalidPreCondition_itReturnsPreconditionFailedHttpStatusCode($preConditionValue)
     {
         $controller = $this->createController(ApplicationTimeController::class);
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
@@ -214,12 +211,15 @@ class ApplicationTimeControllerUnitTest extends UnitTestCase
      */
     public function update__whenSuccessful_itReturnsCallToIndex()
     {
+        $now = Carbon::now();
+
         $container = $this->getMockBuilder(ContainerContract::class)->getMock();
-        $controller = $this->createController($container);
+        $controller = $this->createController(ApplicationTimeController::class, $container);
         $container->expects($this->atLeastOnce())
             ->method('call')
             ->with([$controller, 'index'], [])
-            ->willReturn($expectedResult = new GetApplicationTimeResponse(1));
+            ->willReturn($expectedResult = new GetApplicationTimeResponse($now));
+
         $commandBus = $this->getMockBuilder(CommandBus::class)->disableOriginalConstructor()->getMock();
         $request = $this->getMockBuilder(Request::class)->getMock();
         $response = $controller->update($commandBus, $request);

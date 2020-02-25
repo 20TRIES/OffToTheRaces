@@ -2,9 +2,10 @@
 
 namespace Tests\Unit\Http\Response;
 
-use App\ApplicationSetting\Exception\NegativeTimeException;
 use App\ApplicationSetting\Http\Etag;
 use App\ApplicationSetting\Http\Response\GetApplicationTimeResponse;
+use App\Lib\DateTime\Format;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Tests\Unit\UnitTestCase;
 use TypeError;
@@ -14,23 +15,22 @@ class GetTimeResponseUnitTest extends UnitTestCase
     /**
      * @test
      * @covers GetApplicationTimeResponse::__construct
-     * @testWith [1]
-     *           [0]
      */
-    public function construct__itAcceptsAPositiveInteger($time)
+    public function construct__itAcceptsACarbonInstance()
     {
+        $now = Carbon::now();
         $this->expectNotToPerformAssertions();
-        new GetApplicationTimeResponse($time);
+        new GetApplicationTimeResponse($now);
     }
 
     /**
      * @test
      * @covers GetApplicationTimeResponse::__construct
-     * @testWith [1]
      */
-    public function construct__itReturnsAnInstanceOfJsonResponse($time)
+    public function construct__itReturnsAnInstanceOfJsonResponse()
     {
-        $this->assertInstanceOf(JsonResponse::class, new GetApplicationTimeResponse($time));
+        $now = Carbon::now();
+        $this->assertInstanceOf(JsonResponse::class, new GetApplicationTimeResponse($now));
     }
 
     /**
@@ -47,55 +47,44 @@ class GetTimeResponseUnitTest extends UnitTestCase
     /**
      * @test
      * @covers GetApplicationTimeResponse::__construct
-     * @testWith [-1]
      */
-    public function construct__itThrowsAnExceptionWhenNotProvidedPositiveInteger($time)
+    public function construct__itSetsATimeEtagHeader()
     {
-        $this->expectException(NegativeTimeException::class);
-        new GetApplicationTimeResponse($time);
-    }
-
-    /**
-     * @test
-     * @covers GetApplicationTimeResponse::__construct
-     * @testWith [0]
-     */
-    public function construct__itSetsATimeEtagHeader($time)
-    {
-        $response = new GetApplicationTimeResponse($time);
+        $now = Carbon::now();
+        $response = new GetApplicationTimeResponse($now);
         $this->assertEquals($response->getEtag(), sprintf('"%s"', Etag::TIME));
     }
 
     /**
      * @test
      * @covers GetApplicationTimeResponse::__construct
-     * @testWith [0]
      */
-    public function construct__itSetsAnArrayOfData($time)
+    public function construct__itSetsAnArrayOfData()
     {
-        $response = new GetApplicationTimeResponse($time);
+        $now = Carbon::now();
+        $response = new GetApplicationTimeResponse($now);
         $this->assertIsArray($response->getData(true));
     }
 
     /**
      * @test
      * @covers GetApplicationTimeResponse::__construct
-     * @testWith [0]
      */
-    public function construct__itSetsAnArrayOfData_withATimeKey($time)
+    public function construct__itSetsAnArrayOfData_withATimeKey()
     {
-        $response = new GetApplicationTimeResponse($time);
+        $now = Carbon::now();
+        $response = new GetApplicationTimeResponse($now);
         $this->assertArrayHasKey("time", $response->getData(true));
     }
 
     /**
      * @test
      * @covers GetApplicationTimeResponse::__construct
-     * @testWith [0]
      */
-    public function construct__itSetsAnArrayOfData_withATimeArray($time)
+    public function construct__itSetsAnArrayOfData_withATimeArray()
     {
-        $response = new GetApplicationTimeResponse($time);
+        $now = Carbon::now();
+        $response = new GetApplicationTimeResponse($now);
         $this->assertIsArray($response->getData(true)['time']);
     }
 
@@ -104,21 +93,22 @@ class GetTimeResponseUnitTest extends UnitTestCase
      * @covers GetApplicationTimeResponse::__construct
      * @testWith [0]
      */
-    public function construct__itSetsAnArrayOfData_withATimeKey_containingACurrentKey($time)
+    public function construct__itSetsAnArrayOfData_withATimeKey_containingACurrentKey()
     {
-        $response = new GetApplicationTimeResponse($time);
+        $now = Carbon::now();
+        $response = new GetApplicationTimeResponse($now);
         $this->assertArrayHasKey("current", $response->getData(true)['time']);
     }
 
     /**
      * @test
      * @covers GetApplicationTimeResponse::__construct
-     * @testWith [7]
      */
-    public function construct__itSetsAnArrayOfData_withATimeKey_containingATime($time)
+    public function construct__itSetsAnArrayOfData_withATimeKey_containingATime()
     {
-        $response = new GetApplicationTimeResponse($time);
-        $this->assertEquals(7, $response->getData(true)['time']['current']);
+        $now = Carbon::now();
+        $response = new GetApplicationTimeResponse($now);
+        $this->assertEquals($now->format(Format::DEFAULT), $response->getData(true)['time']['current']);
     }
 
     /**
@@ -127,7 +117,8 @@ class GetTimeResponseUnitTest extends UnitTestCase
      */
     public function getApplicationTime__itIsCallable()
     {
-        $response = new GetApplicationTimeResponse(0);
+        $now = Carbon::now();
+        $response = new GetApplicationTimeResponse($now);
         $this->assertIsCallable([$response, 'getApplicationTime']);
     }
 
@@ -136,9 +127,10 @@ class GetTimeResponseUnitTest extends UnitTestCase
      * @covers GetApplicationTimeResponse::getApplicationTime
      * @testWith [0]
      */
-    public function getApplicationTime__itGetsTheApplicationTimeSet($time)
+    public function getApplicationTime__itGetsTheApplicationTimeSet()
     {
-        $response = new GetApplicationTimeResponse($time);
-        $this->assertEquals($time, $response->getApplicationTime());
+        $now = Carbon::now();
+        $response = new GetApplicationTimeResponse($now);
+        $this->assertEquals($now->format(Format::DEFAULT), $response->getApplicationTime());
     }
 }

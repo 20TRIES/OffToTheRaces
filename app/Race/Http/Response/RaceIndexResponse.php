@@ -3,6 +3,7 @@
 namespace App\Race\Http\Response;
 
 use App\Horse\HorseModel;
+use App\Lib\DateTime\Format;
 use App\Race\RaceModel;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -21,7 +22,7 @@ class RaceIndexResponse extends JsonResponse
     {
         $data = [
             'time' => [
-                'current' => $applicationTime->toIso8601String(),
+                'current' => $applicationTime->format(Format::DEFAULT),
             ],
             'races' => [],
             'pagination' => [
@@ -36,11 +37,11 @@ class RaceIndexResponse extends JsonResponse
             $raceData = [
                 'id' => $race->getShortName(),
                 'name' => $race->getName(),
-                'finished_at' => $finishTime->gt($applicationTime) ? null : $finishTime->toDateTimeString(),
+                'finished_at' => $finishTime->gt($applicationTime) ? null : $finishTime->format(Format::DEFAULT),
                 'horses' => [],
             ];
             $raceStartTime = $race->calculateStartTime();
-            $raceData['start_time'] = $raceStartTime->toIso8601String();
+            $raceData['start_time'] = $raceStartTime->format(Format::DEFAULT);
             $secondsIntoRace = $raceStartTime->diffInSeconds($applicationTime);
             foreach ($race->getHorses()->sortByDistanceCoveredAfterNSeconds($secondsIntoRace)->values() as $key => $horse) {
                 assert($horse instanceof HorseModel);

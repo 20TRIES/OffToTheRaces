@@ -2,31 +2,28 @@
 
 namespace App\ApplicationSetting\Http\Response;
 
-use App\ApplicationSetting\Exception\NegativeTimeException;
 use App\ApplicationSetting\Http\Etag;
+use App\Lib\DateTime\Format;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 
 class GetApplicationTimeResponse extends JsonResponse
 {
     /**
-     * @param int $time
-     * @throws NegativeTimeException
+     * @param Carbon $time
      */
-    public function __construct(int $time)
+    public function __construct(Carbon $time)
     {
-        if ($time < 0) {
-            throw new NegativeTimeException(sprintf('Times cannot be negative but a time of "%s" was provided', $time));
-        }
-        parent::__construct(['time' => ['current' => $time]]);
+        parent::__construct(['time' => ['current' => $time->format(Format::DEFAULT)]]);
         $this->setEtag(Etag::TIME);
     }
 
     /**
      * Gets the application time set for a response.
      *
-     * @return int
+     * @return string
      */
-    public function getApplicationTime(): int
+    public function getApplicationTime(): string
     {
         return $this->getData(true)['time']['current'];
     }

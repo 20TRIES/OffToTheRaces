@@ -3,8 +3,9 @@
 namespace App\ApplicationSetting\Command;
 
 use App\ApplicationSetting\Command\Handler\IncrementApplicationTimeHandler;
-use App\ApplicationSetting\Exception\NegativeTimeException;
+use App\ApplicationSetting\Exception\InvalidNumberOfSecondsException;
 use App\Lib\Command\Command;
+use Carbon\Carbon;
 
 /**
  * Increments the application time by a given number of seconds.
@@ -19,7 +20,7 @@ class IncrementApplicationTimeCommand extends Command
     private $secondsToIncrementBy;
 
     /**
-     * @var int|null
+     * @var Carbon|null
      */
     private $observedTime;
 
@@ -27,16 +28,13 @@ class IncrementApplicationTimeCommand extends Command
      * Constructor.
      *
      * @param int $secondsToIncrementBy
-     * @param int $observedTime [$observedTime=null]
-     * @throws NegativeTimeException
+     * @param Carbon $observedTime [$observedTime=null]
+     * @throws InvalidNumberOfSecondsException
      */
-    public function __construct(int $secondsToIncrementBy, int $observedTime = null)
+    public function __construct(int $secondsToIncrementBy, Carbon $observedTime = null)
     {
         if ($secondsToIncrementBy < 0) {
-            throw new NegativeTimeException();
-        }
-        if ($observedTime < 0) {
-            throw new NegativeTimeException();
+            throw new InvalidNumberOfSecondsException();
         }
         $this->secondsToIncrementBy = $secondsToIncrementBy;
         $this->observedTime = $observedTime;
@@ -51,9 +49,9 @@ class IncrementApplicationTimeCommand extends Command
     }
 
     /**
-     * @return int
+     * @return Carbon
      */
-    public function getObservedTime(): ?int
+    public function getObservedTime(): ?Carbon
     {
         return $this->observedTime;
     }

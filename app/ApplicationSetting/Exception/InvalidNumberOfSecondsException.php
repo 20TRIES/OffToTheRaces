@@ -4,4 +4,4 @@ namespace App\ApplicationSetting\Exception;
 
 use Exception;
 
-class NegativeTimeException extends Exception {}
+class InvalidNumberOfSecondsException extends Exception {}

@@ -8,6 +8,8 @@ use App\ApplicationSetting\Command\Handler\IncrementApplicationTimeHandler;
 use App\ApplicationSetting\Command\IncrementApplicationTimeCommand;
 use App\ApplicationSetting\Exception\ApplicationTimeDoesNotMatchObservedTimeException;
 use App\ApplicationSetting\Exception\FailedToIncrementTimeException;
+use App\Lib\DateTime\Format;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Tests\Unit\UnitTestCase;
 
@@ -36,7 +38,7 @@ class IncrementApplicationTimeHandlerUnitTest extends UnitTestCase
             ->method('where')
             ->with('id', ApplicationSettingName::TIME)
             ->willReturnSelf();
-        $queryBuilder->expects($this->any())->method('increment')->willReturn(1);
+        $queryBuilder->expects($this->any())->method('update')->willReturn(1);
 
         $repository = $this->getMockBuilder(ApplicationSettingRepository::class)->getMock();
         $repository->expects($this->any())->method('newQueryBuilder')->willReturn($queryBuilder);
@@ -49,22 +51,50 @@ class IncrementApplicationTimeHandlerUnitTest extends UnitTestCase
 
     /**
      * @test
-     * @testWith [10, 0]
+     * @testWith [10]
      * @covers IncrementApplicationTimeHandler::handle
+     *
+     * @param int $secondsToIncrementBy
+     * @throws ApplicationTimeDoesNotMatchObservedTimeException
+     * @throws FailedToIncrementTimeException
      */
-    public function handle__incrementsTime($secondsToIncrementBy, $observableTime)
+    public function handle__incrementsTime(int $secondsToIncrementBy)
     {
+        $now = Carbon::now();
+
         $queryBuilder = $this->getMockBuilder(Builder::class)->disableOriginalConstructor()->getMock();
         $queryBuilder->expects($this->any())->method('where')->willReturnSelf();
         $queryBuilder->expects($this->once())
-            ->method('increment')
-            ->with('value', $secondsToIncrementBy)
+            ->method('update')
+            ->with(['value' => $now->clone()->addSeconds($secondsToIncrementBy)->format(Format::DEFAULT)])
             ->willReturn(1);
 
         $repository = $this->getMockBuilder(ApplicationSettingRepository::class)->getMock();
         $repository->expects($this->any())->method('newQueryBuilder')->willReturn($queryBuilder);
 
-        $command = new IncrementApplicationTimeCommand($secondsToIncrementBy, $observableTime);
+        $command = new IncrementApplicationTimeCommand($secondsToIncrementBy, $now);
+        $handler = new IncrementApplicationTimeHandler($repository);
+        $handler->handle($command);
+    }
+
+    /**
+     * @test
+     * @testWith [10]
+     * @covers IncrementApplicationTimeHandler::handle
+     */
+    public function handle__whereProvidedAnObservedTime_filtersResultsBeingUpdatedToOnlyThoseWithThatValue(int $secondsToIncrementBy)
+    {
+        $now = Carbon::now();
+
+        $queryBuilder = $this->getMockBuilder(Builder::class)->disableOriginalConstructor()->getMock();
+        $queryBuilder->expects($this->any())->method('where')->willReturnSelf();
+        $queryBuilder->expects($this->at(1))->method('where')->with('value', $now->format(Format::DEFAULT))->willReturnSelf();
+        $queryBuilder->expects($this->any())->method('update')->willReturn(1);
+
+        $repository = $this->getMockBuilder(ApplicationSettingRepository::class)->getMock();
+        $repository->expects($this->any())->method('newQueryBuilder')->willReturn($queryBuilder);
+
+        $command = new IncrementApplicationTimeCommand($secondsToIncrementBy, $now);
 
         $handler = new IncrementApplicationTimeHandler($repository);
         $handler->handle($command);
@@ -72,40 +102,21 @@ class IncrementApplicationTimeHandlerUnitTest extends UnitTestCase
 
     /**
      * @test
-     * @testWith [10, 0]
+     * @testWith [10]
      * @covers IncrementApplicationTimeHandler::handle
      */
-    public function handle__whereProvidedAnObservedTime_filtersResultsBeingUpdatedToOnlyThoseWithThatValue($secondsToIncrementBy, $observableTime)
+    public function handle__whereProvidedAnObservedTime_andNumberOfResultsUpdatedIsLessThenOne_throwsApplicationTimeDoesNotMatchObservedTimeException($secondsToIncrementBy)
     {
+        $now = Carbon::now();
+
         $queryBuilder = $this->getMockBuilder(Builder::class)->disableOriginalConstructor()->getMock();
         $queryBuilder->expects($this->any())->method('where')->willReturnSelf();
-        $queryBuilder->expects($this->at(1))->method('where')->with('value', $observableTime)->willReturnSelf();
-        $queryBuilder->expects($this->any())->method('increment')->willReturn(1);
+        $queryBuilder->expects($this->any())->method('update')->willReturn(0);
 
         $repository = $this->getMockBuilder(ApplicationSettingRepository::class)->getMock();
         $repository->expects($this->any())->method('newQueryBuilder')->willReturn($queryBuilder);
 
-        $command = new IncrementApplicationTimeCommand($secondsToIncrementBy, $observableTime);
-
-        $handler = new IncrementApplicationTimeHandler($repository);
-        $handler->handle($command);
-    }
-
-    /**
-     * @test
-     * @testWith [10, 0]
-     * @covers IncrementApplicationTimeHandler::handle
-     */
-    public function handle__whereProvidedAnObservedTime_andNumberOfResultsUpdatedIsLessThenOne_throwsApplicationTimeDoesNotMatchObservedTimeException($secondsToIncrementBy, $observableTime)
-    {
-        $queryBuilder = $this->getMockBuilder(Builder::class)->disableOriginalConstructor()->getMock();
-        $queryBuilder->expects($this->any())->method('where')->willReturnSelf();
-        $queryBuilder->expects($this->any())->method('increment')->willReturn(0);
-
-        $repository = $this->getMockBuilder(ApplicationSettingRepository::class)->getMock();
-        $repository->expects($this->any())->method('newQueryBuilder')->willReturn($queryBuilder);
-
-        $command = new IncrementApplicationTimeCommand($secondsToIncrementBy, $observableTime);
+        $command = new IncrementApplicationTimeCommand($secondsToIncrementBy, $now);
 
         $handler = new IncrementApplicationTimeHandler($repository);
         $this->expectException(ApplicationTimeDoesNotMatchObservedTimeException::class);
@@ -121,7 +132,7 @@ class IncrementApplicationTimeHandlerUnitTest extends UnitTestCase
     {
         $queryBuilder = $this->getMockBuilder(Builder::class)->disableOriginalConstructor()->getMock();
         $queryBuilder->expects($this->any())->method('where')->willReturnSelf();
-        $queryBuilder->expects($this->any())->method('increment')->willReturn(0);
+        $queryBuilder->expects($this->any())->method('update')->willReturn(0);
 
         $repository = $this->getMockBuilder(ApplicationSettingRepository::class)->getMock();
         $repository->expects($this->any())->method('newQueryBuilder')->willReturn($queryBuilder);

@@ -2,11 +2,11 @@
 
 namespace App\Horse;
 
+use App\Lib\Model\Model;
 use App\Performance\RaceHorsePerformanceModel;
 use App\Race\RaceModel;
 use Faker\Factory;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 

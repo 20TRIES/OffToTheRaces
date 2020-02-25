@@ -4,6 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use App\ApplicationSetting\ApplicationSettingModel;
+use Carbon\Carbon;
+use App\Lib\DateTime\Format;
 
 class CreateApplicationSettingsTable extends Migration
 {
@@ -23,7 +25,7 @@ class CreateApplicationSettingsTable extends Migration
 
 
         // Initialize application time
-        ApplicationSettingModel::create(['id' => 'time', 'value' => time()]);
+        ApplicationSettingModel::create(['id' => 'time', 'value' => Carbon::now()->format(Format::DEFAULT)]);
     }
 
     /**

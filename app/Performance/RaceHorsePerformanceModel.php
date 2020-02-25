@@ -3,9 +3,9 @@
 namespace App\Performance;
 
 use App\Horse\HorseModel;
+use App\Lib\Model\Pivot;
 use App\Race\RaceModel;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class RaceHorsePerformanceModel extends Pivot
 {

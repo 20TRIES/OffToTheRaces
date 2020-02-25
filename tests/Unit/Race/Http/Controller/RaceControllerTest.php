@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Race\Http\Controller;
 
+use App\Http\Response\Error\ErrorBuilder;
 use Tests\Unit\CreatesControllersTrait;
 use Tests\Unit\UnitTestCase;
 use App\Race\Http\Controller\RaceController;
@@ -16,7 +17,8 @@ class RaceControllerTest extends UnitTestCase
      */
     public function store__isCallable()
     {
-        $controller = $this->createController(RaceController::class);
+        $errorBuilder = $this->getMockBuilder(ErrorBuilder::class)->disableOriginalConstructor()->getMock();
+        $controller = $this->createController(RaceController::class, null, $errorBuilder);
         $this->assertIsCallable([$controller, 'store']);
     }
 }

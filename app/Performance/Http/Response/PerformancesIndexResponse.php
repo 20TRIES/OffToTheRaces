@@ -2,6 +2,7 @@
 
 namespace App\Performance\Http\Response;
 
+use App\Lib\DateTime\Format;
 use App\Performance\RaceHorsePerformanceModel;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -16,7 +17,7 @@ class PerformancesIndexResponse extends JsonResponse
     {
         $data = [
             'time' => [
-                'current' => $applicationTime->toIso8601String(),
+                'current' => $applicationTime->format(Format::DEFAULT),
             ],
             'performances' => [],
             'pagination' => [

@@ -3,8 +3,9 @@
 namespace Tests\Unit\ApplicationSetting\Command;
 
 use App\ApplicationSetting\Command\IncrementApplicationTimeCommand;
-use App\ApplicationSetting\Exception\NegativeTimeException;
+use App\ApplicationSetting\Exception\InvalidNumberOfSecondsException;
 use Tests\Unit\UnitTestCase;
+use TypeError;
 
 class IncrementApplicationTimeCommandUnitTest extends UnitTestCase
 {
@@ -27,7 +28,7 @@ class IncrementApplicationTimeCommandUnitTest extends UnitTestCase
      */
     public function construct__itThrowsExceptionIfSecondsToIncrementIsNegative($secondsToIncrement)
     {
-        $this->expectException(NegativeTimeException::class);
+        $this->expectException(InvalidNumberOfSecondsException::class);
         new IncrementApplicationTimeCommand($secondsToIncrement);
     }
 
@@ -45,22 +46,11 @@ class IncrementApplicationTimeCommandUnitTest extends UnitTestCase
     /**
      * @test
      * @covers IncrementApplicationTimeCommand::__construct
-     * @testWith [-1]
-     */
-    public function construct__itThrowsExceptionIfObservedTimeIsNegative($observedTime)
-    {
-        $this->expectException(NegativeTimeException::class);
-        new IncrementApplicationTimeCommand(1, $observedTime);
-    }
-
-    /**
-     * @test
-     * @covers IncrementApplicationTimeCommand::__construct
      * @testWith ["foo"]
      */
-    public function construct__itThrowsTypeErrorIfObservedTimeIsNotAnInteger($observedTime)
+    public function construct__itThrowsTypeErrorIfObservedTimeIsNotCarbonInstance($observedTime)
     {
-        $this->expectException(\TypeError::class);
+        $this->expectException(TypeError::class);
         new IncrementApplicationTimeCommand(1, $observedTime);
     }
 }

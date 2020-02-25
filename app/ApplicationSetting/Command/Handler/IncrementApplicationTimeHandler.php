@@ -2,6 +2,7 @@
 
 namespace App\ApplicationSetting\Command\Handler;
 
+use App\ApplicationSetting\ApplicationSettingModel;
 use App\ApplicationSetting\Command\IncrementApplicationTimeCommand;
 use App\ApplicationSetting\ApplicationSettingName;
 use App\ApplicationSetting\Exception\ApplicationTimeDoesNotMatchObservedTimeException;
@@ -9,6 +10,8 @@ use App\ApplicationSetting\ApplicationSettingRepository;
 use App\ApplicationSetting\Exception\FailedToIncrementTimeException;
 use App\Lib\Command\Command;
 use App\Lib\Command\HandlerInterface;
+use App\Lib\DateTime\Format;
+use Illuminate\Database\Query\Expression;
 
 /**
  * @see IncrementApplicationTimeCommand
@@ -37,10 +40,18 @@ class IncrementApplicationTimeHandler implements HandlerInterface
     {
         $query = $this->settingRepository->newQueryBuilder()->where('id', ApplicationSettingName::TIME);
         $observedTime = $command->getObservedTime();
+        $secondsToAdd = $command->getSecondsToIncrementBy();
         if (null !== $observedTime) {
-            $query = $query->where('value', $observedTime);
+            $query = $query->where('value', $observedTime->format(Format::DEFAULT));
+            $updatedValue = $observedTime->clone()->addSeconds($secondsToAdd)->format(Format::DEFAULT);
+        } else {
+            $updatedValue = new Expression(sprintf(
+                'DATE_ADD(`%s`, INTERVAL %u SECOND)',
+                ApplicationSettingModel::ATTRIBUTE_VALUE,
+                $secondsToAdd
+            ));
         }
-        if ($query->increment('value', $command->getSecondsToIncrementBy()) < 1) {
+        if ($query->update(['value' => $updatedValue]) < 1) {
             if (null !== $observedTime) {
                 throw new ApplicationTimeDoesNotMatchObservedTimeException();
             }
