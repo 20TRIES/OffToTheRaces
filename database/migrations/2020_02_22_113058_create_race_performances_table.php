@@ -26,7 +26,7 @@ class CreateRacePerformancesTable extends Migration
                 ->on('horses')
                 ->onDelete('RESTRICT')
                 ->onUpdate('CASCADE');
-            $table->smallInteger('time_to_finish', false, true);
+            $table->smallInteger('seconds_to_finish', false, true);
         });
     }
 

@@ -22,7 +22,7 @@ class RaceHorsePerformanceModel extends Pivot
     /**
      * @var string
      */
-    const ATTRIBUTE_TIME_TO_FINISH = 'time_to_finish';
+    const ATTRIBUTE_SECONDS_TO_FINISH = 'seconds_to_finish';
 
     /**
      * @var string
@@ -107,7 +107,7 @@ class RaceHorsePerformanceModel extends Pivot
      */
     public function getTimeToFinish(): int
     {
-        return $this->getAttribute(static::ATTRIBUTE_TIME_TO_FINISH);
+        return $this->getAttribute(static::ATTRIBUTE_SECONDS_TO_FINISH);
     }
 
     /**
@@ -118,7 +118,7 @@ class RaceHorsePerformanceModel extends Pivot
      */
     public function setTimeToFinish(int $seconds): self
     {
-        return $this->setAttribute(static::ATTRIBUTE_TIME_TO_FINISH, $seconds);
+        return $this->setAttribute(static::ATTRIBUTE_SECONDS_TO_FINISH, $seconds);
     }
 
     /**

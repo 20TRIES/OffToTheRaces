@@ -82,7 +82,7 @@ class RaceModel extends Model
             )
             ->using(RaceHorsePerformanceModel::class)
             ->withPivot([
-                RaceHorsePerformanceModel::ATTRIBUTE_TIME_TO_FINISH
+                RaceHorsePerformanceModel::ATTRIBUTE_SECONDS_TO_FINISH
             ]);
     }
 

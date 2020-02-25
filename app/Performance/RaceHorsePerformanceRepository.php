@@ -43,7 +43,7 @@ class RaceHorsePerformanceRepository extends Repository implements PersistsEntit
         );
         $query = RaceRepository::filterQueryToRacesThatEndOnOrBefore($query, $time);
         $query = RaceRepository::filterQueryToRacesOfLength($query, $length);
-        $query = $query->orderBy(RaceHorsePerformanceModel::ATTRIBUTE_TIME_TO_FINISH, 'ASC');
+        $query = $query->orderBy(RaceHorsePerformanceModel::ATTRIBUTE_SECONDS_TO_FINISH, 'ASC');
         $query = $query->limit($limit);
         return $query->get();
     }
