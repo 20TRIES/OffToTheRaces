@@ -56,7 +56,7 @@ class RaceHorsePerformanceModel extends Pivot
         $instance = new static();
         $instance->setRaceId($race->getId());
         $instance->setHorseId($horse->getId());
-        $instance->setTimeToFinish($horse->calculateSecondsToRunGivenDistance($race->getLength()));
+        $instance->setSecondsToFinish($horse->calculateSecondsToRunGivenDistance($race->getLength()));
         return $instance;
     }
 
@@ -105,7 +105,7 @@ class RaceHorsePerformanceModel extends Pivot
      *
      * @return int
      */
-    public function getTimeToFinish(): int
+    public function getSecondsToFinish(): int
     {
         return $this->getAttribute(static::ATTRIBUTE_SECONDS_TO_FINISH);
     }
@@ -116,7 +116,7 @@ class RaceHorsePerformanceModel extends Pivot
      * @param int $seconds
      * @return self
      */
-    public function setTimeToFinish(int $seconds): self
+    public function setSecondsToFinish(int $seconds): self
     {
         return $this->setAttribute(static::ATTRIBUTE_SECONDS_TO_FINISH, $seconds);
     }

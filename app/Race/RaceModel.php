@@ -224,7 +224,7 @@ class RaceModel extends Model
         $timesToFinish = [];
         foreach ($this->getHorses() as $horse) {
             assert($horse instanceof HorseModel);
-            $timesToFinish[] = $horse->getPerformance()->getTimeToFinish();
+            $timesToFinish[] = $horse->getPerformance()->getSecondsToFinish();
         }
         return $this->getFinishedAt()->subSeconds(max($timesToFinish));
     }

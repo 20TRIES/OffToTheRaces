@@ -105,7 +105,7 @@ class CreateRaceHandler implements HandlerInterface
             $racePerformances = $timesToFinish = [];
             foreach ($horses as $horse) {
                 $racePerformances[] = $racePerformance = RaceHorsePerformanceModel::createFromHorseAndRace($horse, $race);
-                $timesToFinish[] = $racePerformance->getTimeToFinish();
+                $timesToFinish[] = $racePerformance->getSecondsToFinish();
             }
             $this->racePerformanceRepository->persist(...$racePerformances);
             $race->setFinishedAt($applicationTime->addSeconds(max($timesToFinish)));

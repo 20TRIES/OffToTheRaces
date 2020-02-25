@@ -45,16 +45,34 @@ class RaceIndexResponse extends JsonResponse
             $raceStartTime = $race->calculateStartTime();
             $raceData['start_time'] = $raceStartTime->format(Format::DEFAULT);
             $secondsIntoRace = $raceStartTime->diffInSeconds($applicationTime);
-            foreach ($race->getHorses()->sortByDistanceCoveredAfterNSeconds($secondsIntoRace)->values() as $key => $horse) {
+            $currentPosition = 0;
+            $distanceAchievedAtLastPosition = -1;
+            $timeTakenAtLastPosition = -1;
+            foreach ($race->getHorses()->sortByDistanceCoveredAfterNSeconds($secondsIntoRace) as $horse) {
                 assert($horse instanceof HorseModel);
                 if (null !== $numberOfHorsesToReport && count($raceData['horses']) >= $numberOfHorsesToReport) {
                     break;
                 }
+                $distanceCovered = (int) floor(min($secondsIntoRace ? $horse->calculateMetersCoverableInNSeconds($secondsIntoRace) : 0, $raceLength));
+                $secondsForHorseToCompleteRace = $horse->getPerformance()->getSecondsToFinish();
+                $horseHasCompletedRace = $distanceCovered === $raceLength;
+
+                if ($horseHasCompletedRace) {
+                    if ($secondsForHorseToCompleteRace !== $timeTakenAtLastPosition) {
+                        $distanceAchievedAtLastPosition = $raceLength;
+                        $timeTakenAtLastPosition = $secondsForHorseToCompleteRace;
+                        ++$currentPosition;
+                    }
+                } elseif ($distanceCovered !== $distanceAchievedAtLastPosition) {
+                    $distanceAchievedAtLastPosition = $distanceCovered;
+                    $timeTakenAtLastPosition = min($secondsIntoRace, $secondsForHorseToCompleteRace);
+                    ++$currentPosition;
+                }
                 $raceData['horses'][] = [
                     'id' => $horse->getShortName(),
                     'name' => $horse->getName(),
-                    'distance_covered' => floor(min($secondsIntoRace ? $horse->calculateMetersCoverableInNSeconds($secondsIntoRace) : 0, $raceLength)),
-                    'position' => $key + 1,
+                    'distance_covered' => $distanceCovered,
+                    'position' => $currentPosition,
                 ];
             }
             $data['races'][] = $raceData;

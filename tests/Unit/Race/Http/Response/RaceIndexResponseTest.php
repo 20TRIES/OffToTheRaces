@@ -29,26 +29,140 @@ class RaceIndexResponseTest extends UnitTestCase
         $race->setLength(1500);
 
         $slowestHorse = $this->createSlowestPossibleHorseWithGivenBaseSpeed(1);
-
-        $secondsTakenForSlowestHorseToCompleteRace = $slowestHorse->calculateSecondsToRunGivenDistance($race->getLength());
-        $race->setFinishedAt($now->copy()->addSeconds($secondsTakenForSlowestHorseToCompleteRace));
-        $performance = new RaceHorsePerformanceModel();
-        $performance->setTimeToFinish($secondsTakenForSlowestHorseToCompleteRace);
-        $slowestHorse->setRelation('pivot', $performance);
-
         $fastestHorse = $this->createFastestPossibleHorseWithGivenBaseSpeed(1);
+        $this->enterHorsesIntoRace($now, $race, $slowestHorse, $fastestHorse);
 
-        $performance = new RaceHorsePerformanceModel();
-        $secondsTakenForFastestHorseToCompleteRace = $slowestHorse->calculateSecondsToRunGivenDistance($race->getLength());
-        $performance->setTimeToFinish($secondsTakenForFastestHorseToCompleteRace);
-        $fastestHorse->setRelation('pivot', $performance);
-
-        $race->setRelation('horses', new HorseModelCollection([$slowestHorse, $fastestHorse]));
-
-        $response = new RaceIndexResponse($now->copy()->addSeconds($secondsTakenForSlowestHorseToCompleteRace - 1), [$race], 2);
+        $response = new RaceIndexResponse($now->copy()->addSeconds($slowestHorse->getPerformance()->getSecondsToFinish() - 1), [$race], 2);
         $responseData = $response->getData(true);
 
         $this->assertEquals($fastestHorse->getShortName(), $responseData['races'][0]['horses'][0]['id']);
+    }
+
+    /**
+     * @test
+     * @covers RaceIndexResponse::__construct
+     *
+     * @throws InvalidRaceLengthException
+     */
+    public function construct__whereHorsesHaveNotCompletedTheRace_itGivesMoreThenOneHorseWithTheSameDistanceCoveredTheSamePosition()
+    {
+        $now = Carbon::now();
+
+        $race = new RaceModel();
+        $race->setShortName('Foo');
+        $race->setName('Foo');
+        $race->setLength(1500);
+
+        $slowestHorse = $this->createSlowestPossibleHorseWithGivenBaseSpeed(1);
+        $fastestHorse = $this->createSlowestPossibleHorseWithGivenBaseSpeed(1);
+        $this->enterHorsesIntoRace($now, $race, $slowestHorse, $fastestHorse);
+
+        $response = new RaceIndexResponse($now->copy()->addSeconds($slowestHorse->getPerformance()->getSecondsToFinish() - 1), [$race], 2);
+        $responseData = $response->getData(true);
+
+        $this->assertEquals($responseData['races'][0]['horses'][0]['position'], $responseData['races'][0]['horses'][1]['position']);
+    }
+
+    /**
+     * @test
+     * @covers RaceIndexResponse::__construct
+     *
+     * @throws InvalidRaceLengthException
+     */
+    public function construct__whereHorsesHaveNotCompletedTheRace_itGivesMoreThenOneHorseWithTheSameDistanceCoveredTheSamePosition_andIncrementsNextHorsePositionByOne()
+    {
+        $now = Carbon::now();
+
+        $race = new RaceModel();
+        $race->setShortName('Foo');
+        $race->setName('Foo');
+        $race->setLength(1500);
+
+        $horse1 = $this->createSlowestPossibleHorseWithGivenBaseSpeed(2);
+        $horse2 = $this->createSlowestPossibleHorseWithGivenBaseSpeed(2);
+        $slowestHorse = $this->createSlowestPossibleHorseWithGivenBaseSpeed(3);
+        $this->enterHorsesIntoRace($now->copy(), $race, $horse1, $horse2, $slowestHorse);
+
+        $response = new RaceIndexResponse($now->copy()->addSeconds($slowestHorse->getPerformance()->getSecondsToFinish() - 1), [$race], 3);
+        $responseData = $response->getData(true);
+
+        $this->assertEquals(2, $responseData['races'][0]['horses'][2]['position']);
+    }
+
+    /**
+     * @test
+     * @covers RaceIndexResponse::__construct
+     *
+     * @throws InvalidRaceLengthException
+     */
+    public function construct__whereHorsesHaveCompletedTheRace_itPlacesHorsesThatHaveCompletedARaceByTimeTakenToComplete()
+    {
+        $now = Carbon::now();
+
+        $race = new RaceModel();
+        $race->setShortName('Foo');
+        $race->setName('Foo');
+        $race->setLength(1500);
+
+        $horse1 = $this->createSlowestPossibleHorseWithGivenBaseSpeed(2);
+        $slowestHorse = $this->createSlowestPossibleHorseWithGivenBaseSpeed(1);
+        $this->enterHorsesIntoRace($now->copy(), $race, $horse1, $slowestHorse);
+
+        $response = new RaceIndexResponse($now->copy()->addSeconds($slowestHorse->getPerformance()->getSecondsToFinish()), [$race], 3);
+        $responseData = $response->getData(true);
+
+        $this->assertEquals(2, $responseData['races'][0]['horses'][1]['position']);
+    }
+
+    /**
+     * @test
+     * @covers RaceIndexResponse::__construct
+     *
+     * @throws InvalidRaceLengthException
+     */
+    public function construct__whereHorsesHaveCompletedTheRace_itPlacesHorsesThatHaveCompletedARaceByTimeTakenToComplete_placingThemTheSameIfTheTimesMatch()
+    {
+        $now = Carbon::now();
+
+        $race = new RaceModel();
+        $race->setShortName('Foo');
+        $race->setName('Foo');
+        $race->setLength(1500);
+
+        $horse1 = $this->createSlowestPossibleHorseWithGivenBaseSpeed(2);
+        $slowestHorse = $this->createSlowestPossibleHorseWithGivenBaseSpeed(2);
+        $this->enterHorsesIntoRace($now->copy(), $race, $horse1, $slowestHorse);
+
+        $response = new RaceIndexResponse($now->copy()->addSeconds($slowestHorse->getPerformance()->getSecondsToFinish()), [$race], 3);
+        $responseData = $response->getData(true);
+
+        $this->assertEquals($responseData['races'][0]['horses'][0]['position'], $responseData['races'][0]['horses'][1]['position']);
+    }
+
+    /**
+     * @test
+     * @covers RaceIndexResponse::__construct
+     *
+     * @throws InvalidRaceLengthException
+     */
+    public function construct__whereHorsesHaveCompletedTheRace_itPlacesHorsesThatHaveCompletedARaceByTimeTakenToComplete_placingThemTheSameIfTheTimesMatch_andContinuesIncrementingPlacingAfterwards()
+    {
+        $now = Carbon::now();
+
+        $race = new RaceModel();
+        $race->setShortName('Foo');
+        $race->setName('Foo');
+        $race->setLength(1500);
+
+        $horse1 = $this->createSlowestPossibleHorseWithGivenBaseSpeed(2);
+        $horse2 = $this->createSlowestPossibleHorseWithGivenBaseSpeed(2);
+        $slowestHorse = $this->createSlowestPossibleHorseWithGivenBaseSpeed(3);
+        $this->enterHorsesIntoRace($now->copy(), $race, $horse1, $horse2, $slowestHorse);
+
+        $response = new RaceIndexResponse($now->copy()->addSeconds($slowestHorse->getPerformance()->getSecondsToFinish()), [$race], 3);
+        $responseData = $response->getData(true);
+
+        $this->assertEquals(2, $responseData['races'][0]['horses'][2]['position']);
     }
 
     /**
@@ -67,23 +181,10 @@ class RaceIndexResponseTest extends UnitTestCase
         $race->setLength(1500);
 
         $slowestHorse = $this->createSlowestPossibleHorseWithGivenBaseSpeed(1);
-
-        $secondsTakenForSlowestHorseToCompleteRace = $slowestHorse->calculateSecondsToRunGivenDistance($race->getLength());
-        $race->setFinishedAt($now->copy()->addSeconds($secondsTakenForSlowestHorseToCompleteRace));
-        $performance = new RaceHorsePerformanceModel();
-        $performance->setTimeToFinish($secondsTakenForSlowestHorseToCompleteRace);
-        $slowestHorse->setRelation('pivot', $performance);
-
         $fastestHorse = $this->createFastestPossibleHorseWithGivenBaseSpeed(1);
+        $this->enterHorsesIntoRace($now, $race, $slowestHorse, $fastestHorse);
 
-        $performance = new RaceHorsePerformanceModel();
-        $secondsTakenForFastestHorseToCompleteRace = $slowestHorse->calculateSecondsToRunGivenDistance($race->getLength());
-        $performance->setTimeToFinish($secondsTakenForFastestHorseToCompleteRace);
-        $fastestHorse->setRelation('pivot', $performance);
-
-        $race->setRelation('horses', new HorseModelCollection([$slowestHorse, $fastestHorse]));
-
-        $response = new RaceIndexResponse($now->copy()->addSeconds($secondsTakenForSlowestHorseToCompleteRace - 1), [$race], 2);
+        $response = new RaceIndexResponse($now->copy()->addSeconds($slowestHorse->getPerformance()->getSecondsToFinish() - 1), [$race], 2);
         $responseData = $response->getData(true);
 
         $this->assertEquals($race->getLength(), $responseData['races'][0]['horses'][0]['distance_covered']);
@@ -111,5 +212,18 @@ class RaceIndexResponseTest extends UnitTestCase
         $slowestHorse->setStrengthStat(0);
         $slowestHorse->setEnduranceStat(0);
         return $slowestHorse;
+    }
+
+    protected function enterHorsesIntoRace(Carbon $now, RaceModel $race, HorseModel ...$horses)
+    {
+        $timesTakenToFinish = [];
+        foreach ($horses as $horse) {
+            $performance = new RaceHorsePerformanceModel();
+            $secondsTakenToCompleteRace = $timesTakenToFinish[] = $horse->calculateSecondsToRunGivenDistance($race->getLength());
+            $performance->setSecondsToFinish($secondsTakenToCompleteRace);
+            $horse->setRelation('pivot', $performance);
+        }
+        $race->setRelation('horses', new HorseModelCollection($horses));
+        $race->setFinishedAt($now->addSeconds(max($timesTakenToFinish)));
     }
 }
