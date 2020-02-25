@@ -27,7 +27,7 @@ class RaceHorsePerformanceModel extends Pivot
     /**
      * @var string
      */
-    const TABLE = 'race_horse_performance';
+    const TABLE = 'race_horse_performances';
 
     /**
      * @var bool

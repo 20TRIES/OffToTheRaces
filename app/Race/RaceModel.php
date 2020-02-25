@@ -76,9 +76,9 @@ class RaceModel extends Model
         return $this
             ->belongsToMany(
                 HorseModel::class,
-                'race_horse_performance',
-                'race_id',
-                'horse_id'
+                RaceHorsePerformanceModel::TABLE,
+                RaceHorsePerformanceModel::ATTRIBUTE_RACE_ID,
+                RaceHorsePerformanceModel::ATTRIBUTE_HORSE_ID
             )
             ->using(RaceHorsePerformanceModel::class)
             ->withPivot([

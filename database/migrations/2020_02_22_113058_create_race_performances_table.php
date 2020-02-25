@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRacePerformanceTable extends Migration
+class CreateRacePerformancesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateRacePerformanceTable extends Migration
      */
     public function up()
     {
-        Schema::create('race_horse_performance', function (Blueprint $table) {
+        Schema::create('race_horse_performances', function (Blueprint $table) {
             $table->bigInteger('race_id', false, true);
             $table->foreign('race_id')
                 ->references('id')
@@ -37,6 +37,6 @@ class CreateRacePerformanceTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('race_horse_performance');
+        Schema::dropIfExists('race_horse_performances');
     }
 }
