@@ -95,7 +95,7 @@ class RaceRepository extends Repository implements FindsOneEntityByIdInterface, 
      */
     public function getRacesThatEndAfter(Carbon $time)
     {
-        return $this->filterQueryToRacesThatEndAfter($this->newQueryBuilder(), $time)->get();
+        return $this->filterQueryToRacesThatEndAfter($this->newQueryBuilder(), $time)->orderBy(RaceModel::ATTRIBUTE_FINISHED_AT, 'ASC')->get();
     }
 
     /**
