@@ -14,10 +14,10 @@ class HorseModelCollection extends Collection
      * @param bool $descending [$descending=false]
      * @return HorseModelCollection
      */
-    public function sortByDistanceCoveredAfterNSeconds(int $secondsIntoRace, $options = SORT_REGULAR, $descending = false)
+    public function sortByDistanceCoveredAfterNSeconds(int $secondsIntoRace, $options = SORT_REGULAR, $descending = true)
     {
         return $this->sortBy(function (HorseModel $horse) use ($secondsIntoRace) {
             return $secondsIntoRace ? $horse->calculateMetersCoverableInNSeconds($secondsIntoRace) : 0;
-        });
+        }, $options, $descending);
     }
 }

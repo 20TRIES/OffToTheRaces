@@ -106,6 +106,17 @@ class RaceModel extends Model
     }
 
     /**
+     * Sets the id of a model.
+     *
+     * @param int $value
+     * @return self
+     */
+    public function setId(int $value): self
+    {
+        return $this->setAttribute(static::ATTRIBUTE_ID, $value);
+    }
+
+    /**
      * Gets the short name of a race.
      *
      * @return string
@@ -113,6 +124,17 @@ class RaceModel extends Model
     public function getShortName(): string
     {
         return $this->getAttribute(static::ATTRIBUTE_SHORT_NAME);
+    }
+
+    /**
+     * Sets the short name of a model.
+     *
+     * @param string $shortName
+     * @return self
+     */
+    public function setShortName(string $shortName): self
+    {
+        return $this->setAttribute(static::ATTRIBUTE_SHORT_NAME, $shortName);
     }
 
     /**

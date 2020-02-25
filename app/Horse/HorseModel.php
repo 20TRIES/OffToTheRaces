@@ -144,6 +144,17 @@ class HorseModel extends Model
     }
 
     /**
+     * Sets the id of a model.
+     *
+     * @param int $value
+     * @return self
+     */
+    public function setId(int $value): self
+    {
+        return $this->setAttribute(static::ATTRIBUTE_ID, $value);
+    }
+
+    /**
      * Gets the short name of a race.
      *
      * @return string
@@ -151,6 +162,17 @@ class HorseModel extends Model
     public function getShortName(): string
     {
         return $this->getAttribute(static::ATTRIBUTE_SHORT_NAME);
+    }
+
+    /**
+     * Sets the short name of a model.
+     *
+     * @param string $shortName
+     * @return self
+     */
+    public function setShortName(string $shortName): self
+    {
+        return $this->setAttribute(static::ATTRIBUTE_SHORT_NAME, $shortName);
     }
 
     /**
@@ -205,6 +227,17 @@ class HorseModel extends Model
     }
 
     /**
+     * Sets the base speed of a model.
+     *
+     * @param float $value
+     * @return self
+     */
+    public function setBaseSpeed(float $value): self
+    {
+        return $this->setAttribute(static::ATTRIBUTE_BASE_SPEED, $value);
+    }
+
+    /**
      * Initializes a horse's base speed.
      *
      * @return self
@@ -235,13 +268,24 @@ class HorseModel extends Model
     }
 
     /**
+     * Sets the speed stat for a model.
+     *
+     * @param float $value
+     * @return self
+     */
+    public function setSpeedStat(float $value): self
+    {
+        return $this->setAttribute(static::ATTRIBUTE_SPEED_STAT, $value);
+    }
+
+    /**
      * Initializes a horse's speed stat.
      *
      * @return self
      */
     public function initializeSpeedStat(): self
     {
-        return $this->setAttribute(static::ATTRIBUTE_SPEED_STAT, $this->generateRandomStat());
+        return $this->setSpeedStat($this->generateRandomStat());
     }
 
     /**
@@ -255,13 +299,24 @@ class HorseModel extends Model
     }
 
     /**
+     * Sets the strength stat for a model.
+     *
+     * @param float $value
+     * @return self
+     */
+    public function setStrengthStat(float $value): self
+    {
+        return $this->setAttribute(static::ATTRIBUTE_STRENGTH_STAT, $value);
+    }
+
+    /**
      * Initializes a horse's strength stat.
      *
      * @return self
      */
     public function initializeStrengthStat(): self
     {
-        return $this->setAttribute(static::ATTRIBUTE_STRENGTH_STAT, $this->generateRandomStat());
+        return $this->setStrengthStat($this->generateRandomStat());
     }
 
     /**
@@ -275,13 +330,24 @@ class HorseModel extends Model
     }
 
     /**
+     * Sets the endurance stat for a model.
+     *
+     * @param float $value
+     * @return self
+     */
+    public function setEnduranceStat(float $value): self
+    {
+        return $this->setAttribute(static::ATTRIBUTE_ENDURANCE_STAT, $value);
+    }
+
+    /**
      * Initializes a horse's endurance stat.
      *
      * @return self
      */
     public function initializeEnduranceStat(): self
     {
-        return $this->setAttribute(static::ATTRIBUTE_ENDURANCE_STAT, $this->generateRandomStat());
+        return $this->setEnduranceStat($this->generateRandomStat());
     }
 
     /**
@@ -338,7 +404,7 @@ class HorseModel extends Model
      * @param float $meters
      * @return float
      */
-    public function calculateTimeToRunGivenDistance(float $meters): float
+    public function calculateSecondsToRunGivenDistance(float $meters): float
     {
         $metersRunningUnhindered = $this->getUnladenMeters();
         $secondsRunningUnhindered = min($meters, $metersRunningUnhindered) / $this->getUnladenSpeed();
@@ -381,6 +447,6 @@ class HorseModel extends Model
      */
     public function calculateAverageSpeedOverNMeters(float $meters): float
     {
-        return $meters / $this->calculateTimeToRunGivenDistance($meters);
+        return $meters / $this->calculateSecondsToRunGivenDistance($meters);
     }
 }

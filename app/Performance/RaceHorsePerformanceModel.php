@@ -56,7 +56,7 @@ class RaceHorsePerformanceModel extends Pivot
         $instance = new static();
         $instance->setRaceId($race->getId());
         $instance->setHorseId($horse->getId());
-        $instance->setTimeToFinish($horse->calculateTimeToRunGivenDistance($race->getLength()));
+        $instance->setTimeToFinish($horse->calculateSecondsToRunGivenDistance($race->getLength()));
         return $instance;
     }
 

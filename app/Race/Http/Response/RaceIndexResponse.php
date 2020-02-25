@@ -33,11 +33,13 @@ class RaceIndexResponse extends JsonResponse
         ];
         foreach ($races as $race) {
             assert($race instanceof RaceModel);
-            $finishTime = $race->getFinishedAt();
+            $raceFinishTime = $race->getFinishedAt();
+            $raceLength = $race->getLength();
             $raceData = [
                 'id' => $race->getShortName(),
                 'name' => $race->getName(),
-                'finished_at' => $finishTime->gt($applicationTime) ? null : $finishTime->format(Format::DEFAULT),
+                'finished_at' => $raceFinishTime->gt($applicationTime) ? null : $raceFinishTime->format(Format::DEFAULT),
+                'length' => $raceLength,
                 'horses' => [],
             ];
             $raceStartTime = $race->calculateStartTime();
@@ -51,7 +53,7 @@ class RaceIndexResponse extends JsonResponse
                 $raceData['horses'][] = [
                     'id' => $horse->getShortName(),
                     'name' => $horse->getName(),
-                    'distance_covered' => $secondsIntoRace ? $horse->calculateMetersCoverableInNSeconds($secondsIntoRace) : 0,
+                    'distance_covered' => floor(min($secondsIntoRace ? $horse->calculateMetersCoverableInNSeconds($secondsIntoRace) : 0, $raceLength)),
                     'position' => $key + 1,
                 ];
             }
