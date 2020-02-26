@@ -35,6 +35,7 @@ class PerformancesIndexResponse extends JsonResponse
                 'horse' => [
                     'name' => $horse->getName(),
                     'average_speed' => (float) number_format($horse->calculateAverageSpeedOverNMeters($raceLength), 2),
+                    'seconds_run' => $performance->getSecondsToFinish(),
                     'stats' => [
                         'speed' => $horse->getSpeedStat(),
                         'strength' => $horse->getStrengthStat(),
