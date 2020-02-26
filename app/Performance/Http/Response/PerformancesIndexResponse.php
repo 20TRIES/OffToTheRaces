@@ -31,7 +31,7 @@ class PerformancesIndexResponse extends JsonResponse
             $race = $performance->getRace();
             $raceLength = $race->getLength();
             $horse = $performance->getHorse();
-            $data['performances'] = [
+            $data['performances'][] = [
                 'horse' => [
                     'name' => $horse->getName(),
                     'average_speed' => (float) number_format($horse->calculateAverageSpeedOverNMeters($raceLength), 2),
